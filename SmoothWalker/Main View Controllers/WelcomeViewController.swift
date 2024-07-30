@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 A view controller that onboards users to the app.
@@ -35,7 +35,7 @@ class WelcomeViewController: SplashScreenViewController, SplashScreenViewControl
     func getHealthAuthorizationRequestStatus() {
         print("Checking HealthKit authorization status...")
         
-        if !HKHealthStore.isHealthDataAvailable() {
+        if !HKHealthStore.isHealthDataAvailable {
             presentHealthDataNotAvailableError()
             
             return
@@ -82,7 +82,7 @@ class WelcomeViewController: SplashScreenViewController, SplashScreenViewControl
     func requestHealthAuthorization() {
         print("Requesting HealthKit authorization...")
         
-        if !HKHealthStore.isHealthDataAvailable() {
+        if !HKHealthStore.isHealthDataAvailable {
             presentHealthDataNotAvailableError()
             
             return

@@ -1,5 +1,7 @@
 # Creating a Mobility Health App
 
+@Available(Xcode, introduced: "12.4")
+
 Create a health app that allows a clinical care team to send and receive mobility data.
 
 ## Overview

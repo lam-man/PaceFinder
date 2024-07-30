@@ -1,5 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
+See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
 A collection of HealthKit properties, functions, and utilities.
@@ -51,7 +51,7 @@ class HealthData {
     class func requestHealthDataAccessIfNeeded(toShare shareTypes: Set<HKSampleType>?,
                                                read readTypes: Set<HKObjectType>?,
                                                completion: @escaping (_ success: Bool) -> Void) {
-        if !HKHealthStore.isHealthDataAvailable() {
+        if !HKHealthStore.isHealthDataAvailable {
             fatalError("Health data is not available!")
         }
         
