@@ -22,14 +22,98 @@ class HealthData {
         return allHealthDataTypes
     }
     
+//    private static var allHealthDataTypes: [HKSampleType] {
+//        let typeIdentifiers: [String] = [
+//            HKQuantityTypeIdentifier.stepCount.rawValue,
+//            HKQuantityTypeIdentifier.distanceWalkingRunning.rawValue,
+//            HKQuantityTypeIdentifier.sixMinuteWalkTestDistance.rawValue
+//        ]
+//        
+//        return typeIdentifiers.compactMap { getSampleType(for: $0) }
+//    }
+    
+    // Add this section after the existing allHealthDataTypes property
+
+    // MARK: - Running Data Types
+
+    static var runningDataTypes: [HKSampleType] {
+        var runningTypeIdentifiers: [String] = [
+            // Always available
+            HKQuantityTypeIdentifier.distanceWalkingRunning.rawValue,
+            HKQuantityTypeIdentifier.heartRate.rawValue,
+            HKQuantityTypeIdentifier.stepCount.rawValue
+        ]
+        
+        // iOS 16.0+ running metrics
+        if #available(iOS 16.0, *) {
+            runningTypeIdentifiers.append(contentsOf: [
+                HKQuantityTypeIdentifier.runningSpeed.rawValue,
+                HKQuantityTypeIdentifier.runningPower.rawValue,
+                HKQuantityTypeIdentifier.runningGroundContactTime.rawValue,
+                HKQuantityTypeIdentifier.runningStrideLength.rawValue,
+                HKQuantityTypeIdentifier.runningVerticalOscillation.rawValue
+            ])
+        }
+        
+        return runningTypeIdentifiers.compactMap { getSampleType(for: $0) }
+    }
+
+    static var workoutDataTypes: [HKSampleType] {
+        return [HKWorkoutType.workoutType()]
+    }
+
+    // Update the existing allHealthDataTypes to include running data
     private static var allHealthDataTypes: [HKSampleType] {
-        let typeIdentifiers: [String] = [
+        let mobilityTypeIdentifiers: [String] = [
             HKQuantityTypeIdentifier.stepCount.rawValue,
             HKQuantityTypeIdentifier.distanceWalkingRunning.rawValue,
             HKQuantityTypeIdentifier.sixMinuteWalkTestDistance.rawValue
         ]
         
-        return typeIdentifiers.compactMap { getSampleType(for: $0) }
+        let mobilityTypes = mobilityTypeIdentifiers.compactMap { getSampleType(for: $0) }
+        
+        return mobilityTypes + runningDataTypes + workoutDataTypes
+    }
+
+    // MARK: - Running-Specific Authorization
+
+    /// Request authorization specifically for running data types
+    class func requestRunningDataAccess(completion: @escaping (_ success: Bool) -> Void) {
+        let readTypes = Set(runningDataTypes + workoutDataTypes)
+        let shareTypes = Set(runningDataTypes + workoutDataTypes)
+        
+        requestHealthDataAccessIfNeeded(toShare: shareTypes, read: readTypes, completion: completion)
+    }
+
+    // MARK: - iOS Version Compatibility Helpers
+
+    /// Check if advanced running metrics are available on this iOS version
+    class func isAdvancedRunningMetricsAvailable() -> Bool {
+        if #available(iOS 16.0, *) {
+            return true
+        }
+        return false
+    }
+
+    /// Get available running data type identifiers for current iOS version
+    class func getAvailableRunningDataTypes() -> [String] {
+        var types = [
+            HKQuantityTypeIdentifier.distanceWalkingRunning.rawValue,
+            HKQuantityTypeIdentifier.heartRate.rawValue,
+            HKQuantityTypeIdentifier.stepCount.rawValue
+        ]
+        
+        if #available(iOS 16.0, *) {
+            types.append(contentsOf: [
+                HKQuantityTypeIdentifier.runningSpeed.rawValue,
+                HKQuantityTypeIdentifier.runningPower.rawValue,
+                HKQuantityTypeIdentifier.runningGroundContactTime.rawValue,
+                HKQuantityTypeIdentifier.runningStrideLength.rawValue,
+                HKQuantityTypeIdentifier.runningVerticalOscillation.rawValue
+            ])
+        }
+        
+        return types
     }
     
     // MARK: - Authorization
@@ -51,7 +135,7 @@ class HealthData {
     class func requestHealthDataAccessIfNeeded(toShare shareTypes: Set<HKSampleType>?,
                                                read readTypes: Set<HKObjectType>?,
                                                completion: @escaping (_ success: Bool) -> Void) {
-        if !HKHealthStore.isHealthDataAvailable {
+        if !HKHealthStore.isHealthDataAvailable() {
             fatalError("Health data is not available!")
         }
         

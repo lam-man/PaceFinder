@@ -25,13 +25,36 @@ class MainTabViewController: UITabBarController {
     
     // MARK: - Setup
     
+//    func setUpTabViewController() {
+//        let viewControllers = [
+//            createWelcomeViewController(),
+//            createWeeklyQuantitySampleTableViewController(),
+//            createChartViewController(),
+//            createWeeklyReportViewController()
+//        ]
+//        
+//        self.viewControllers = viewControllers.map {
+//            UINavigationController(rootViewController: $0)
+//        }
+//        
+//        delegate = self
+//        selectedIndex = getLastViewedViewControllerIndex()
+//    }
     func setUpTabViewController() {
-        let viewControllers = [
+        var viewControllers: [UIViewController] = [
             createWelcomeViewController(),
-            createWeeklyQuantitySampleTableViewController(),
+            createWeeklyQuantitySampleTableViewController()
+        ]
+        
+        // Add Running Activities tab only for iOS 16.0+
+        if #available(iOS 16.0, *) {
+            viewControllers.append(createRunningActivitiesViewController())
+        }
+        
+        viewControllers.append(contentsOf: [
             createChartViewController(),
             createWeeklyReportViewController()
-        ]
+        ])
         
         self.viewControllers = viewControllers.map {
             UINavigationController(rootViewController: $0)
@@ -75,6 +98,16 @@ class MainTabViewController: UITabBarController {
         viewController.tabBarItem = UITabBarItem(title: "Weekly Report",
                                                  image: UIImage(systemName: "star"),
                                                  selectedImage: UIImage(systemName: "star.fill"))
+        return viewController
+    }
+    
+    @available(iOS 16.0, *)
+    private func createRunningActivitiesViewController() -> UIViewController {
+        let viewController = RunningActivitiesTableViewController()
+        
+        viewController.tabBarItem = UITabBarItem(title: "Running",
+                                               image: UIImage(systemName: "figure.run"),
+                                               selectedImage: UIImage(systemName: "figure.run.circle.fill"))
         return viewController
     }
     

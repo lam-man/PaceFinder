@@ -3,10 +3,14 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BDF6A03B2EC0399600CCD995 /* RunningActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A03A2EC0398F00CCD995 /* RunningActivity.swift */; };
+		BDF6A03D2EC043B800CCD995 /* RunningDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A03C2EC043AE00CCD995 /* RunningDataManager.swift */; };
+		BDF6A03F2EC04F5400CCD995 /* RunningActivityTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A03E2EC04F3400CCD995 /* RunningActivityTableViewController.swift */; };
+		BDF6A0412EC04F8200CCD995 /* RunningActivityTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A0402EC04F7500CCD995 /* RunningActivityTableCell.swift */; };
 		EB12722B24859C1600548CD1 /* DataTypeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722A24859C1600548CD1 /* DataTypeTableViewCell.swift */; };
 		EB12722D2485BA9400548CD1 /* HealthDataTypeValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722C2485BA9400548CD1 /* HealthDataTypeValue.swift */; };
 		EB12722F2485C83E00548CD1 /* EmptyDataBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722E2485C83E00548CD1 /* EmptyDataBackgroundView.swift */; };
@@ -41,7 +45,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		8037822B27C5C24067AC1EBF /* SampleCode.xcconfig */ = {isa = PBXFileReference; name = SampleCode.xcconfig; path = Configuration/SampleCode.xcconfig; sourceTree = "<group>"; };
+		8037822B27C5C24067AC1EBF /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = SampleCode.xcconfig; path = Configuration/SampleCode.xcconfig; sourceTree = "<group>"; };
+		BDF6A03A2EC0398F00CCD995 /* RunningActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivity.swift; sourceTree = "<group>"; };
+		BDF6A03C2EC043AE00CCD995 /* RunningDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningDataManager.swift; sourceTree = "<group>"; };
+		BDF6A03E2EC04F3400CCD995 /* RunningActivityTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivityTableViewController.swift; sourceTree = "<group>"; };
+		BDF6A0402EC04F7500CCD995 /* RunningActivityTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivityTableCell.swift; sourceTree = "<group>"; };
 		DDC3EAD6D9404AADDCC92FF8 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		EB12722A24859C1600548CD1 /* DataTypeTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTypeTableViewCell.swift; sourceTree = "<group>"; };
 		EB12722C2485BA9400548CD1 /* HealthDataTypeValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDataTypeValue.swift; sourceTree = "<group>"; };
@@ -76,7 +84,7 @@
 		F9907B002458947D00987667 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F9907B06245894E600987667 /* SmoothWalker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SmoothWalker.entitlements; sourceTree = "<group>"; };
 		F9907B08245894E600987667 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
-		FEDEA0134A58BE9A54B6DBA4 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = LICENSE.txt; sourceTree = "<group>"; };
+		FEDEA0134A58BE9A54B6DBA4 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,7 +106,6 @@
 				FEDEA0134A58BE9A54B6DBA4 /* LICENSE.txt */,
 			);
 			name = LICENSE;
-			path = "";
 			sourceTree = "<group>";
 		};
 		A84DF625EC23E377183A6CF9 /* Configuration */ = {
@@ -156,6 +163,7 @@
 		EB326B51246B257000FEFD08 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				BDF6A03A2EC0398F00CCD995 /* RunningActivity.swift */,
 				EB12722C2485BA9400548CD1 /* HealthDataTypeValue.swift */,
 				EB644FA22473136500CF27F0 /* ServerResponse.swift */,
 			);
@@ -165,6 +173,7 @@
 		EB326B52246B257700FEFD08 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				BDF6A03C2EC043AE00CCD995 /* RunningDataManager.swift */,
 				EB326B4F246B1B5700FEFD08 /* HealthData.swift */,
 				EB644FA0247311DF00CF27F0 /* Network.swift */,
 				EB9525B224735827001B5178 /* MockServerResponse.json */,
@@ -186,6 +195,7 @@
 		EB48C1BE246B25D000AE8FE3 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				BDF6A03E2EC04F3400CCD995 /* RunningActivityTableViewController.swift */,
 				EB9525BF2474C9C2001B5178 /* WelcomeViewController.swift */,
 				EB9525B62474C396001B5178 /* WeeklyDataTableViewController.swift */,
 				EB644F9E24730E2B00CF27F0 /* MobilityChartDataViewController.swift */,
@@ -198,6 +208,7 @@
 		EB48C1BF246B25DA00AE8FE3 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				BDF6A0402EC04F7500CCD995 /* RunningActivityTableCell.swift */,
 				EB12722A24859C1600548CD1 /* DataTypeTableViewCell.swift */,
 				EBEF213B2462289B0055F482 /* FeedItemCollectionViewCell.swift */,
 			);
@@ -352,7 +363,9 @@
 			files = (
 				EB12722D2485BA9400548CD1 /* HealthDataTypeValue.swift in Sources */,
 				F9907AF72458947C00987667 /* FeedItemViewController.swift in Sources */,
+				BDF6A03B2EC0399600CCD995 /* RunningActivity.swift in Sources */,
 				EB9525BE2474C9A2001B5178 /* SplashScreenViewController.swift in Sources */,
+				BDF6A03F2EC04F5400CCD995 /* RunningActivityTableViewController.swift in Sources */,
 				EB9525BA2474C8F2001B5178 /* ChartTableViewController.swift in Sources */,
 				EB644FA1247311DF00CF27F0 /* Network.swift in Sources */,
 				EB12722F2485C83E00548CD1 /* EmptyDataBackgroundView.swift in Sources */,
@@ -360,6 +373,7 @@
 				EB305B7C2485D99B007A7694 /* HealthQueryTableViewController.swift in Sources */,
 				EB305B7E2485E4B8007A7694 /* HealthKitSupport+Strings.swift in Sources */,
 				EB644FA32473136500CF27F0 /* ServerResponse.swift in Sources */,
+				BDF6A03D2EC043B800CCD995 /* RunningDataManager.swift in Sources */,
 				EB326B50246B1B5700FEFD08 /* HealthData.swift in Sources */,
 				EB9525C22475BD41001B5178 /* HealthKitSupport.swift in Sources */,
 				EB9525BC2474C930001B5178 /* WeeklyReportTableViewController.swift in Sources */,
@@ -371,6 +385,7 @@
 				EB1272332485D5D200548CD1 /* DataTableViewController.swift in Sources */,
 				EB326B4E246B16AD00FEFD08 /* MainTabViewController.swift in Sources */,
 				EB48C1CA246B3A0300AE8FE3 /* ChartViewStyle.swift in Sources */,
+				BDF6A0412EC04F8200CCD995 /* RunningActivityTableCell.swift in Sources */,
 				EB48C1C4246B351C00AE8FE3 /* CareKitSupport.swift in Sources */,
 				EB644F9F24730E2B00CF27F0 /* MobilityChartDataViewController.swift in Sources */,
 				EB9525C02474C9C2001B5178 /* WelcomeViewController.swift in Sources */,
@@ -525,7 +540,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "SmoothWalker/Supporting Files/SmoothWalker.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = SX4U443X25;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				INFOPLIST_FILE = "SmoothWalker/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
@@ -549,7 +564,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "SmoothWalker/Supporting Files/SmoothWalker.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = SX4U443X25;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				INFOPLIST_FILE = "SmoothWalker/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
