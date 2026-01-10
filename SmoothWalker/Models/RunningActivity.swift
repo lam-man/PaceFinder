@@ -29,6 +29,9 @@ struct RunningActivity {
     var verticalOscillation: Double? // meters
     var cadence: Double? // steps per minute
     
+    // Splits data (per kilometer)
+    var splits: [RunningSplit] = []
+    
     // Calculated properties
     var averagePaceMinutesPerKm: Double? {
         guard let speed = averageSpeed, speed > 0 else { return nil }

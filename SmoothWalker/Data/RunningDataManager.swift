@@ -328,8 +328,221 @@ class RunningDataManager {
                 activity.cadence = (steps / activity.duration) * 60.0
             }
             
-            completion(activity)
+            // Fetch splits data
+            self.fetchSplitsForWorkout(workout, into: &activity) { activityWithSplits in
+                completion(activityWithSplits)
+            }
         }
+    }
+    
+    // MARK: - Splits Fetching
+    
+    private func fetchSplitsForWorkout(_ workout: HKWorkout, into activity: inout RunningActivity, completion: @escaping (RunningActivity) -> Void) {
+        var activityCopy = activity
+        
+        // Try to get segment events from the workout
+        if let events = workout.workoutEvents {
+            let segmentEvents = events.filter { $0.type == .segment }
+            
+            if !segmentEvents.isEmpty {
+                // We have segment markers - use them
+                fetchMetricsForSegments(segmentEvents, workout: workout) { splits in
+                    activityCopy.splits = splits
+                    completion(activityCopy)
+                }
+                return
+            }
+        }
+        
+        // No segment events - calculate splits based on distance
+        // Use total distance to determine number of splits
+        guard let totalDistance = workout.totalDistance?.doubleValue(for: .meter()),
+              totalDistance >= 1000 else {
+            completion(activityCopy)
+            return
+        }
+        
+        calculateSplitsFromSamples(for: workout, totalDistance: totalDistance) { splits in
+            activityCopy.splits = splits
+            completion(activityCopy)
+        }
+    }
+    
+    private func fetchMetricsForSegments(_ segments: [HKWorkoutEvent], workout: HKWorkout, completion: @escaping ([RunningSplit]) -> Void) {
+        var splits: [RunningSplit] = []
+        let group = DispatchGroup()
+        
+        for (index, event) in segments.enumerated() {
+            group.enter()
+            
+            let startDate = event.dateInterval.start
+            let endDate = event.dateInterval.end
+            
+            var split = RunningSplit(
+                splitNumber: index + 1,
+                distance: 1000.0, // Assume 1km per segment
+                startDate: startDate,
+                endDate: endDate
+            )
+            
+            // Fetch metrics for this segment's time range
+            fetchMetricsForTimeRange(start: startDate, end: endDate) { heartRate, power, cadence, speed in
+                split.averageHeartRate = heartRate
+                split.averagePower = power
+                split.averageCadence = cadence
+                split.averageSpeed = speed
+                splits.append(split)
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(splits.sorted { $0.splitNumber < $1.splitNumber })
+        }
+    }
+    
+    private func calculateSplitsFromSamples(for workout: HKWorkout, totalDistance: Double, completion: @escaping ([RunningSplit]) -> Void) {
+        let numberOfSplits = Int(totalDistance / 1000.0)
+        guard numberOfSplits > 0 else {
+            completion([])
+            return
+        }
+        
+        // Calculate time intervals for each split (assuming even pace)
+        let totalDuration = workout.duration
+        let durationPerSplit = totalDuration / Double(numberOfSplits)
+        
+        var splits: [RunningSplit] = []
+        let group = DispatchGroup()
+        
+        for i in 0..<numberOfSplits {
+            group.enter()
+            
+            let splitStart = workout.startDate.addingTimeInterval(durationPerSplit * Double(i))
+            let splitEnd = workout.startDate.addingTimeInterval(durationPerSplit * Double(i + 1))
+            
+            var split = RunningSplit(
+                splitNumber: i + 1,
+                distance: 1000.0,
+                startDate: splitStart,
+                endDate: splitEnd
+            )
+            
+            fetchMetricsForTimeRange(start: splitStart, end: splitEnd) { heartRate, power, cadence, speed in
+                split.averageHeartRate = heartRate
+                split.averagePower = power
+                split.averageCadence = cadence
+                split.averageSpeed = speed
+                splits.append(split)
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(splits.sorted { $0.splitNumber < $1.splitNumber })
+        }
+    }
+    
+    private func fetchMetricsForTimeRange(start: Date, end: Date, completion: @escaping (Double?, Double?, Double?, Double?) -> Void) {
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+        
+        var heartRate: Double?
+        var power: Double?
+        var cadence: Double?
+        var speed: Double?
+        
+        let group = DispatchGroup()
+        
+        // Heart Rate
+        if let hrType = HKQuantityType.quantityType(forIdentifier: .heartRate) {
+            group.enter()
+            let hrUnit = HKUnit.count().unitDivided(by: .minute())
+            fetchAverageForType(hrType, predicate: predicate, unit: hrUnit) { value in
+                heartRate = value
+                group.leave()
+            }
+        }
+        
+        // Running Power (iOS 16+)
+        if let powerType = HKQuantityType.quantityType(forIdentifier: .runningPower) {
+            group.enter()
+            fetchAverageForType(powerType, predicate: predicate, unit: .watt()) { value in
+                power = value
+                group.leave()
+            }
+        }
+        
+        // Step Count for Cadence
+        if let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) {
+            group.enter()
+            let stepUnit = HKUnit.count()
+            fetchSumForType(stepType, predicate: predicate, unit: stepUnit) { totalSteps in
+                if let steps = totalSteps {
+                    let duration = end.timeIntervalSince(start)
+                    if duration > 0 {
+                        cadence = (steps / duration) * 60.0
+                    }
+                }
+                group.leave()
+            }
+        }
+        
+        // Running Speed (iOS 16+)
+        if let speedType = HKQuantityType.quantityType(forIdentifier: .runningSpeed) {
+            group.enter()
+            let speedUnit = HKUnit.meter().unitDivided(by: .second())
+            fetchAverageForType(speedType, predicate: predicate, unit: speedUnit) { value in
+                speed = value
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(heartRate, power, cadence, speed)
+        }
+    }
+    
+    private func fetchAverageForType(_ type: HKQuantityType, predicate: NSPredicate, unit: HKUnit, completion: @escaping (Double?) -> Void) {
+        let query = HKSampleQuery(
+            sampleType: type,
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: nil
+        ) { _, samples, error in
+            guard let quantitySamples = samples as? [HKQuantitySample],
+                  !quantitySamples.isEmpty,
+                  error == nil else {
+                completion(nil)
+                return
+            }
+            
+            let values = quantitySamples.map { $0.quantity.doubleValue(for: unit) }
+            let average = values.reduce(0, +) / Double(values.count)
+            completion(average)
+        }
+        
+        healthStore.execute(query)
+    }
+    
+    private func fetchSumForType(_ type: HKQuantityType, predicate: NSPredicate, unit: HKUnit, completion: @escaping (Double?) -> Void) {
+        let query = HKSampleQuery(
+            sampleType: type,
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: nil
+        ) { _, samples, error in
+            guard let quantitySamples = samples as? [HKQuantitySample],
+                  !quantitySamples.isEmpty,
+                  error == nil else {
+                completion(nil)
+                return
+            }
+            
+            let sum = quantitySamples.reduce(0.0) { $0 + $1.quantity.doubleValue(for: unit) }
+            completion(sum)
+        }
+        
+        healthStore.execute(query)
     }
     
     @available(iOS 16.0, *)
