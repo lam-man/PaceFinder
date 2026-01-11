@@ -364,7 +364,8 @@ class RunningDataManager {
                     for: identifier,
                     unit: unit,
                     into: &activity,
-                    totalSteps: &totalSteps
+                    totalSteps: &totalSteps,
+                    workout: workout
                 )
             }
             
@@ -1086,7 +1087,8 @@ class RunningDataManager {
         for identifier: HKQuantityTypeIdentifier,
         unit: HKUnit,
         into activity: inout RunningActivity,
-        totalSteps: inout Double?
+        totalSteps: inout Double?,
+        workout: HKWorkout
     ) {
         let values = samples.map { $0.quantity.doubleValue(for: unit) }
         guard !values.isEmpty else { return }
@@ -1099,8 +1101,9 @@ class RunningDataManager {
             activity.maxHeartRate = values.max()
             
         case .stepCount:
-            // Sum steps for cadence calculation
-            totalSteps = values.reduce(0, +)
+            // Filter step counts by workout source to avoid double-counting from iPhone + Watch
+            let filteredSamples = samples.filter { $0.sourceRevision.source == workout.sourceRevision.source }
+            totalSteps = filteredSamples.reduce(0.0) { $0 + $1.quantity.doubleValue(for: unit) }
             
         case .runningSpeed:
             // Preserve distance/duration-derived speed if already set
