@@ -198,7 +198,6 @@ class RunningDataManager {
 
     /// Fetch only the latest running workout with metrics and splits
     func fetchLatestRunningActivity(completion: @escaping (RunningActivity?) -> Void) {
-        print("[RunningDataManager] fetchLatestRunningActivity called")
         fetchLatestRunningWorkout { [weak self] workout in
             guard let self = self, let workout = workout else {
                 completion(nil)
@@ -210,21 +209,17 @@ class RunningDataManager {
 
     /// Fetch only the latest running workout as a story (activity + route)
     func fetchLatestRunningStory(completion: @escaping (RunningStory?) -> Void) {
-        print("[RunningDataManager] fetchLatestRunningStory called")
         fetchLatestRunningWorkout { [weak self] workout in
             guard let self = self, let workout = workout else {
-                print("[RunningDataManager] No workout found in fetchLatestRunningStory")
                 completion(nil)
                 return
             }
-            print("[RunningDataManager] Found workout: distance=\(workout.totalDistance?.doubleValue(for: .meter()) ?? 0)m")
             self.fetchRunningStory(for: workout, completion: completion)
         }
     }
 
     /// Fetch only the latest running story (activity + route)
     func fetchRunningStories(completion: @escaping ([RunningStory]) -> Void) {
-        print("[RunningDataManager] ========== fetchRunningStories called ==========")
         fetchLatestRunningStory { story in
             completion(story.map { [$0] } ?? [])
         }
@@ -297,7 +292,6 @@ class RunningDataManager {
     }
     
     private func fetchMetricsForSingleWorkout(_ workout: HKWorkout, completion: @escaping (RunningActivity?) -> Void) {
-        print("[RunningDataManager] fetchMetricsForSingleWorkout called for workout on \(workout.startDate)")
         // FIXED: Use predicate for samples during workout time range
         let workoutPredicate = HKQuery.predicateForSamples(
             withStart: workout.startDate,
@@ -393,7 +387,6 @@ class RunningDataManager {
 
     /// Build a rich story payload (activity + route)
     func fetchRunningStory(for workout: HKWorkout, completion: @escaping (RunningStory?) -> Void) {
-        print("[RunningDataManager] fetchRunningStory called")
         fetchMetricsForSingleWorkout(workout) { [weak self] activity in
             guard let self = self, let activity = activity else {
                 completion(nil)
@@ -409,23 +402,17 @@ class RunningDataManager {
     // MARK: - Splits Fetching
     
     private func fetchSplitsForWorkout(_ workout: HKWorkout, into activity: inout RunningActivity, completion: @escaping (RunningActivity) -> Void) {
-        print("[RunningDataManager] fetchSplitsForWorkout called")
         var activityCopy = activity
         
         guard let totalDistance = workout.totalDistance?.doubleValue(for: .meter()) else {
-            print("[RunningDataManager] No totalDistance found, returning without splits")
             completion(activityCopy)
             return
         }
-        
-        print("[RunningDataManager] totalDistance: \(totalDistance)m")
         
         // Determine split unit (KM or Mile) based on locale
         // TODO: Make this user-configurable instead of relying on locale
         let usesMiles = false // Locale.current.measurementSystem == .us
         let splitDistanceInMeters = usesMiles ? 1609.34 : 1000.0 // 1 mile or 1 km
-        
-        print("[RunningDataManager] Using split distance: \(splitDistanceInMeters)m (usesMiles: \(usesMiles))")
         
         // Always calculate splits from distance samples (matches Fitness app behavior)
         self.calculateSplitsFromSamples(
@@ -434,8 +421,6 @@ class RunningDataManager {
             splitDistanceInMeters: splitDistanceInMeters
         ) { [weak self] splits in
             guard let self = self else { return }
-            
-            print("[RunningDataManager] calculateSplitsFromSamples returned \(splits.count) splits")
             
             if !splits.isEmpty {
                 activityCopy.splits = splits
@@ -654,7 +639,6 @@ class RunningDataManager {
                 split.averagePower = power
                 split.averageCadence = cadence
                 split.averageSpeed = speed
-                print("[RunningDataManager] Split \(split.splitNumber) metrics - HR: \(heartRate ?? -1), Power: \(power ?? -1), Cadence: \(cadence ?? -1), Speed: \(speed ?? -1)")
                 splitsWithMetrics.append(split)
                 group.leave()
             }
@@ -671,8 +655,6 @@ class RunningDataManager {
         splitDistanceInMeters: Double,
         completion: @escaping ([RunningSplit]) -> Void
     ) {
-        print("[RunningDataManager] calculateSplitsFromSamples called with totalDistance: \(totalDistance)m, splitDistance: \(splitDistanceInMeters)m")
-        
         // Determine appropriate distance type based on workout activity
         // Following healthkit-workout-splits best practices
         let distanceType: HKQuantityType
@@ -715,20 +697,8 @@ class RunningDataManager {
                   let distanceSamples = samples as? [HKQuantitySample],
                   !distanceSamples.isEmpty,
                   error == nil else {
-                print("[RunningDataManager] No distance samples found")
                 completion([])
                 return
-            }
-            
-            // Debug: Log sample information
-            let sampleDistance = distanceSamples.reduce(0.0) { $0 + $1.quantity.doubleValue(for: .meter()) }
-            let sourceName = workout.sourceRevision.source.name
-            print("[RunningDataManager] Fetched \(distanceSamples.count) samples from '\(sourceName)'")
-            print("[RunningDataManager] Total distance from samples: \(String(format: "%.2f", sampleDistance))m")
-            if let workoutDistance = workout.totalDistance?.doubleValue(for: .meter()) {
-                let diff = abs(sampleDistance - workoutDistance)
-                let percentDiff = (diff / workoutDistance) * 100
-                print("[RunningDataManager] Workout distance: \(String(format: "%.2f", workoutDistance))m (diff: \(String(format: "%.1f%%", percentDiff)))")
             }
             
             // Calculate split boundaries from distance samples
@@ -827,8 +797,6 @@ class RunningDataManager {
                     )
                     split.activeDuration = activeTime
                     
-                    print("[RunningDataManager] Split \(splitNumber): \(String(format: "%.2f", splitDistanceInMeters))m, cumulative: \(String(format: "%.2f", cumulativeDistance + distanceToNextSplit))m")
-                    
                     splits.append(split)
 
                     // Update tracking variables
@@ -847,8 +815,6 @@ class RunningDataManager {
                 }
             }
         }
-        
-        print("[RunningDataManager] Created \(splits.count) splits from cumulative distance: \(String(format: "%.2f", cumulativeDistance))m")
         
         // Create partial split for remaining distance if meaningful (>0.1m threshold)
         if cumulativeDistance > currentSplitStartDistance && !shouldStopProcessing {
@@ -1020,13 +986,11 @@ class RunningDataManager {
             group.enter()
             let stepUnit = HKUnit.count()
             let sourceDevice = workout?.sourceRevision.source
-            print("[RunningDataManager] Fetching steps with source filter: \(sourceDevice?.name ?? "nil")")
             fetchSumForType(stepType, predicate: predicate, unit: stepUnit, sourceDevice: sourceDevice) { totalSteps in
                 if let steps = totalSteps {
                     let duration = end.timeIntervalSince(start)
                     if duration > 0 {
                         cadence = (steps / duration) * 60.0
-                        print("[RunningDataManager] Calculated cadence from steps: \(cadence!) spm (steps: \(steps), duration: \(duration)s)")
                     }
                 }
                 group.leave()
@@ -1059,7 +1023,6 @@ class RunningDataManager {
             if cadence == nil, let spd = speed, let stride = strideLength, stride > 0 {
                 // Cadence (steps/min) = Speed (m/s) / Stride Length (m) * 60
                 cadence = (spd / stride) * 60.0
-                print("[RunningDataManager] Calculated cadence from speed/stride: \(cadence!) spm (speed: \(spd)m/s, stride: \(stride)m)")
             }
             
             completion(heartRate, power, cadence, speed)
@@ -1098,7 +1061,6 @@ class RunningDataManager {
             guard let quantitySamples = samples as? [HKQuantitySample],
                   !quantitySamples.isEmpty,
                   error == nil else {
-                print("[RunningDataManager] fetchSumForType: no samples (error: \(String(describing: error)))")
                 completion(nil)
                 return
             }
@@ -1107,12 +1069,7 @@ class RunningDataManager {
             let filteredSamples: [HKQuantitySample]
             if let source = sourceDevice {
                 filteredSamples = quantitySamples.filter { $0.sourceRevision.source == source }
-                print("[RunningDataManager] Filtered step samples: \(quantitySamples.count) → \(filteredSamples.count) (source: \(source.name))")
-                if filteredSamples.isEmpty {
-                    print("[RunningDataManager] WARNING: All samples filtered out! Available sources: \(Set(quantitySamples.map { $0.sourceRevision.source.name }))")
-                }
             } else {
-                print("[RunningDataManager] No source filter, using all \(quantitySamples.count) step samples")
                 filteredSamples = quantitySamples
             }
             
