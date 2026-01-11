@@ -15,7 +15,7 @@ class SplitTableViewCell: UITableViewCell {
     
     // UI Elements
     private let kmLabel = UILabel()
-    private let timeLabel = UILabel()
+    private let cadenceLabel = UILabel()
     private let paceLabel = UILabel()
     private let heartRateLabel = UILabel()
     private let powerLabel = UILabel()
@@ -34,7 +34,7 @@ class SplitTableViewCell: UITableViewCell {
     
     private func setupViews() {
         // Configure labels
-        let labels = [kmLabel, timeLabel, paceLabel, heartRateLabel, powerLabel]
+        let labels = [kmLabel, cadenceLabel, paceLabel, heartRateLabel, powerLabel]
         
         for label in labels {
             label.font = .monospacedDigitSystemFont(ofSize: 14, weight: .regular)
@@ -58,7 +58,7 @@ class SplitTableViewCell: UITableViewCell {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
         stackView.addArrangedSubview(kmLabel)
-        stackView.addArrangedSubview(timeLabel)
+        stackView.addArrangedSubview(cadenceLabel)
         stackView.addArrangedSubview(paceLabel)
         stackView.addArrangedSubview(heartRateLabel)
         stackView.addArrangedSubview(powerLabel)
@@ -81,8 +81,12 @@ class SplitTableViewCell: UITableViewCell {
         // Kilometer number
         kmLabel.text = "\(split.splitNumber)"
         
-        // Time for this split
-        timeLabel.text = split.formattedDuration
+        // Cadence
+        if let cadence = split.averageCadence {
+            cadenceLabel.text = String(format: "%.0f", cadence)
+        } else {
+            cadenceLabel.text = "-"
+        }
         
         // Pace
         paceLabel.text = split.formattedPace

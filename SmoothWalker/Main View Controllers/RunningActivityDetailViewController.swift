@@ -232,7 +232,7 @@ class SplitHeaderView: UIView {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let labels = [kmLabel, timeLabel, paceLabel, hrLabel, powerLabel]
-        let titles = ["KM", "TIME", "PACE", "♥", "W"]
+        let titles = ["KM", "CAD", "PACE", "♥", "W"]
         
         for (label, title) in zip(labels, titles) {
             label.text = title

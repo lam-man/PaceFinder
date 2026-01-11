@@ -141,8 +141,12 @@ class RunningActivityTableViewCell: UITableViewCell {
             heartRateLabel.text = "♥ N/A"
         }
         
-        // Speed
-        if let speed = activity.averageSpeed {
+        // Speed: prefer distance/duration so it always matches the displayed distance
+        if let distance = activity.distance, activity.duration > 0 {
+            let derivedSpeed = distance / activity.duration
+            let speedKmh = derivedSpeed * 3.6
+            speedLabel.text = String(format: "⚡ %.1f km/h", speedKmh)
+        } else if let speed = activity.averageSpeed {
             let speedKmh = speed * 3.6 // Convert m/s to km/h
             speedLabel.text = String(format: "⚡ %.1f km/h", speedKmh)
         } else {

@@ -14,10 +14,11 @@ struct RunningSplit {
     let distance: Double           // meters (typically 1000m per split)
     let startDate: Date
     let endDate: Date
+    var activeDuration: TimeInterval? = nil // Actual duration excluding pauses
     
     // Calculated from start/end dates
     var duration: TimeInterval {
-        return endDate.timeIntervalSince(startDate)
+        return activeDuration ?? endDate.timeIntervalSince(startDate)
     }
     
     // Pace in minutes per kilometer
