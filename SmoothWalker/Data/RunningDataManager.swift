@@ -273,10 +273,9 @@ class RunningDataManager {
                 activity.cadence = (steps / activity.duration) * 60.0
             }
             
-            // Fetch splits data
-            self.fetchSplitsForWorkout(workout, into: &activity) { activityWithSplits in
-                completion(activityWithSplits)
-            }
+            // Return activity without splits for better performance
+            // Splits can be fetched separately when needed
+            completion(activity)
         }
     }
 
@@ -295,6 +294,33 @@ class RunningDataManager {
     }
     
     // MARK: - Splits Fetching
+    
+    /// Fetch splits for a specific activity (call this when user views details)
+    func fetchSplitsForActivity(_ activity: RunningActivity, completion: @escaping (RunningActivity) -> Void) {
+        // Fetch the workout by UUID
+        let workoutPredicate = HKQuery.predicateForObject(with: activity.workoutIdentifier)
+        
+        let query = HKSampleQuery(
+            sampleType: HKWorkoutType.workoutType(),
+            predicate: workoutPredicate,
+            limit: 1,
+            sortDescriptors: nil
+        ) { [weak self] query, samples, error in
+            guard let self = self,
+                  let workout = samples?.first as? HKWorkout,
+                  error == nil else {
+                completion(activity)
+                return
+            }
+            
+            var activityCopy = activity
+            self.fetchSplitsForWorkout(workout, into: &activityCopy) { activityWithSplits in
+                completion(activityWithSplits)
+            }
+        }
+        
+        healthStore.execute(query)
+    }
     
     private func fetchSplitsForWorkout(_ workout: HKWorkout, into activity: inout RunningActivity, completion: @escaping (RunningActivity) -> Void) {
         var activityCopy = activity

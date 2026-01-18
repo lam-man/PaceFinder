@@ -11,7 +11,8 @@ import UIKit
 @available(iOS 16.0, *)
 class RunningActivityDetailViewController: UITableViewController {
     
-    private let activity: RunningActivity
+    private var activity: RunningActivity
+    private let runningDataManager = RunningDataManager()
     
     // Section definitions
     private enum Section: Int, CaseIterable {
@@ -44,6 +45,7 @@ class RunningActivityDetailViewController: UITableViewController {
         
         setupViewController()
         setupTableView()
+        loadSplitsIfNeeded()
     }
     
     private func setupViewController() {
@@ -60,6 +62,20 @@ class RunningActivityDetailViewController: UITableViewController {
     private func setupTableView() {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "SummaryCell")
         tableView.register(SplitTableViewCell.self, forCellReuseIdentifier: SplitTableViewCell.identifier)
+    }
+    
+    // MARK: - Data Loading
+    
+    private func loadSplitsIfNeeded() {
+        // Only fetch splits if they haven't been loaded yet
+        guard activity.splits.isEmpty else { return }
+        
+        runningDataManager.fetchSplitsForActivity(activity) { [weak self] updatedActivity in
+            DispatchQueue.main.async {
+                self?.activity = updatedActivity
+                self?.tableView.reloadData()
+            }
+        }
     }
     
     // MARK: - Table View Data Source
