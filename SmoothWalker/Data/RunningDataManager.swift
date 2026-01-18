@@ -18,15 +18,31 @@ class RunningDataManager {
     // MARK: - Fetch Running Activities
     
     /// Fetch only the latest running workout with associated metrics and splits
+    /// Fetch all running activities (workouts with metrics)
     func fetchRunningActivities(completion: @escaping ([RunningActivity]) -> Void) {
-        fetchLatestRunningWorkout { [weak self] workout in
-            guard let self = self, let workout = workout else {
+        fetchAllRunningWorkouts { [weak self] workouts in
+            guard let self = self, !workouts.isEmpty else {
                 completion([])
                 return
             }
-
-            self.fetchMetricsForSingleWorkout(workout) { activity in
-                completion(activity.map { [$0] } ?? [])
+            
+            let group = DispatchGroup()
+            var activities: [RunningActivity] = []
+            
+            for workout in workouts {
+                group.enter()
+                self.fetchMetricsForSingleWorkout(workout) { activity in
+                    if let activity = activity {
+                        activities.append(activity)
+                    }
+                    group.leave()
+                }
+            }
+            
+            group.notify(queue: .main) {
+                // Sort by start date (most recent first)
+                let sortedActivities = activities.sorted { $0.startDate > $1.startDate }
+                completion(sortedActivities)
             }
         }
     }
@@ -53,14 +69,57 @@ class RunningDataManager {
         }
     }
 
-    /// Fetch only the latest running story (activity + route)
+    /// Fetch all running stories (activity + route for each workout)
     func fetchRunningStories(completion: @escaping ([RunningStory]) -> Void) {
-        fetchLatestRunningStory { story in
-            completion(story.map { [$0] } ?? [])
+        fetchAllRunningWorkouts { [weak self] workouts in
+            guard let self = self, !workouts.isEmpty else {
+                completion([])
+                return
+            }
+            
+            let group = DispatchGroup()
+            var stories: [RunningStory] = []
+            
+            for workout in workouts {
+                group.enter()
+                self.fetchRunningStory(for: workout) { story in
+                    if let story = story {
+                        stories.append(story)
+                    }
+                    group.leave()
+                }
+            }
+            
+            group.notify(queue: .main) {
+                // Sort by start date (most recent first)
+                let sortedStories = stories.sorted { $0.activity.startDate > $1.activity.startDate }
+                completion(sortedStories)
+            }
         }
     }
     
     // MARK: - Private Methods
+    
+    private func fetchAllRunningWorkouts(completion: @escaping ([HKWorkout]) -> Void) {
+        let workoutType = HKWorkoutType.workoutType()
+        let predicate = HKQuery.predicateForWorkouts(with: .running)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+        
+        let query = HKSampleQuery(
+            sampleType: workoutType,
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: [sortDescriptor]
+        ) { _, samples, error in
+            guard let workouts = samples as? [HKWorkout], error == nil else {
+                completion([])
+                return
+            }
+            completion(workouts)
+        }
+        
+        healthStore.execute(query)
+    }
     
     private func fetchRunningWorkouts(from startDate: Date, to endDate: Date, completion: @escaping ([HKWorkout]) -> Void) {
         let workoutType = HKWorkoutType.workoutType()
