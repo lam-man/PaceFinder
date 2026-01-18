@@ -59,6 +59,23 @@ class RunningActivitiesTableViewController: UITableViewController {
     // MARK: - Data Loading
     
     private func loadRunningData() {
+        // For debug: use loadAllRunningData() to test with all activities
+        loadLatestRunningData()
+    }
+    
+    /// Load only the latest running activity (recommended for production)
+    private func loadLatestRunningData() {
+        runningDataManager.fetchLatestRunningActivity { [weak self] activity in
+            DispatchQueue.main.async {
+                self?.runningActivities = activity.map { [$0] } ?? []
+                self?.tableView.reloadData()
+                self?.refreshControl?.endRefreshing()
+            }
+        }
+    }
+    
+    /// Load all running activities (useful for debugging)
+    private func loadAllRunningData() {
         runningDataManager.fetchRunningActivities { [weak self] activities in
             DispatchQueue.main.async {
                 self?.runningActivities = activities
