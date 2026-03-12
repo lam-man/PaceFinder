@@ -258,7 +258,7 @@ class RunningActivityDetailViewController: UITableViewController {
         return 50
     }
     
-    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+    @objc override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         super.tableView(tableView, willDisplay: cell, forRowAt: indexPath)
         guard let sectionType = Section(rawValue: indexPath.section) else { return }
         if sectionType == .splits && splitLoadingState == .idle {
@@ -266,7 +266,7 @@ class RunningActivityDetailViewController: UITableViewController {
         }
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    @objc override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         super.tableView(tableView, didSelectRowAt: indexPath)
         guard let sectionType = Section(rawValue: indexPath.section) else { return }
         if sectionType == .splits && splitLoadingState == .idle {
