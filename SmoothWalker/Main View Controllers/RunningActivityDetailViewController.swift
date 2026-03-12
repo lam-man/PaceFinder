@@ -13,6 +13,7 @@ class RunningActivityDetailViewController: UITableViewController {
     
     private var activity: RunningActivity
     private let runningDataManager = RunningDataManager()
+    private var splitLoadingState: SplitsLoadingState
     
     // Section definitions
     private enum Section: Int, CaseIterable {
@@ -27,10 +28,17 @@ class RunningActivityDetailViewController: UITableViewController {
         }
     }
     
+    private enum SplitsLoadingState {
+        case idle
+        case loading
+        case loaded
+    }
+    
     // MARK: - Initialization
     
     init(activity: RunningActivity) {
         self.activity = activity
+        self.splitLoadingState = activity.splits.isEmpty ? .idle : .loaded
         super.init(style: .insetGrouped)
     }
     
@@ -45,7 +53,6 @@ class RunningActivityDetailViewController: UITableViewController {
         
         setupViewController()
         setupTableView()
-        loadSplitsIfNeeded()
     }
     
     private func setupViewController() {
@@ -67,13 +74,16 @@ class RunningActivityDetailViewController: UITableViewController {
     // MARK: - Data Loading
     
     private func loadSplitsIfNeeded() {
-        // Only fetch splits if they haven't been loaded yet
-        guard activity.splits.isEmpty else { return }
+        guard splitLoadingState == .idle else { return }
+        splitLoadingState = .loading
+        tableView.reloadSections(IndexSet(integer: Section.splits.rawValue), with: .automatic)
         
         runningDataManager.fetchSplitsForActivity(activity) { [weak self] updatedActivity in
             DispatchQueue.main.async {
-                self?.activity = updatedActivity
-                self?.tableView.reloadData()
+                guard let self else { return }
+                self.activity = updatedActivity
+                self.splitLoadingState = .loaded
+                self.tableView.reloadSections(IndexSet(integer: Section.splits.rawValue), with: .automatic)
             }
         }
     }
@@ -91,17 +101,17 @@ class RunningActivityDetailViewController: UITableViewController {
         case .summary:
             return 6 // Distance, Duration, Pace, Heart Rate, Power, Cadence
         case .splits:
-            return activity.splits.count
+            switch splitLoadingState {
+            case .loaded:
+                return max(activity.splits.count, 1)
+            case .idle, .loading:
+                return 1
+            }
         }
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         guard let sectionType = Section(rawValue: section) else { return nil }
-        
-        if sectionType == .splits && activity.splits.isEmpty {
-            return nil
-        }
-        
         return sectionType.title
     }
     
@@ -186,19 +196,48 @@ class RunningActivityDetailViewController: UITableViewController {
     }
     
     private func configureSplitCell(for indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: SplitTableViewCell.identifier, for: indexPath) as? SplitTableViewCell else {
-            return UITableViewCell()
+        switch splitLoadingState {
+        case .loaded:
+            guard !activity.splits.isEmpty,
+                  let cell = tableView.dequeueReusableCell(withIdentifier: SplitTableViewCell.identifier, for: indexPath) as? SplitTableViewCell else {
+                return placeholderSplitCell(on: tableView, message: "No splits available")
+            }
+            let split = activity.splits[indexPath.row]
+            cell.configure(with: split)
+            return cell
+        case .loading:
+            return placeholderSplitCell(on: tableView, message: "Loading splits…", showActivityIndicator: true)
+        case .idle:
+            return placeholderSplitCell(on: tableView, message: "Scroll to load splits")
         }
-        
-        let split = activity.splits[indexPath.row]
-        cell.configure(with: split)
-        
+    }
+    
+    private func placeholderSplitCell(on tableView: UITableView, message: String, showActivityIndicator: Bool = false) -> UITableViewCell {
+        let identifier = "SplitPlaceholderCell"
+        let cell: UITableViewCell
+        if let dequeued = tableView.dequeueReusableCell(withIdentifier: identifier) {
+            cell = dequeued
+        } else {
+            cell = UITableViewCell(style: .default, reuseIdentifier: identifier)
+            cell.selectionStyle = .none
+            cell.textLabel?.textAlignment = .center
+            cell.textLabel?.textColor = .secondaryLabel
+        }
+        cell.textLabel?.text = message
+        if showActivityIndicator {
+            let indicator = UIActivityIndicatorView(style: .medium)
+            indicator.startAnimating()
+            cell.accessoryView = indicator
+        } else {
+            cell.accessoryView = nil
+        }
         return cell
     }
     
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard let sectionType = Section(rawValue: section),
               sectionType == .splits,
+              splitLoadingState == .loaded,
               !activity.splits.isEmpty else {
             return nil
         }
@@ -211,11 +250,28 @@ class RunningActivityDetailViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard let sectionType = Section(rawValue: section),
               sectionType == .splits,
+              splitLoadingState == .loaded,
               !activity.splits.isEmpty else {
             return UITableView.automaticDimension
         }
         
         return 50
+    }
+    
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        super.tableView(tableView, willDisplay: cell, forRowAt: indexPath)
+        guard let sectionType = Section(rawValue: indexPath.section) else { return }
+        if sectionType == .splits && splitLoadingState == .idle {
+            loadSplitsIfNeeded()
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        super.tableView(tableView, didSelectRowAt: indexPath)
+        guard let sectionType = Section(rawValue: indexPath.section) else { return }
+        if sectionType == .splits && splitLoadingState == .idle {
+            loadSplitsIfNeeded()
+        }
     }
 }
 
