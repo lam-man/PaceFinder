@@ -265,7 +265,7 @@ class RunningDataManager {
         
         let group = DispatchGroup()
         
-        // Track step count for cadence calculation
+        // Track step count for an estimated cadence calculation.
         var totalSteps: Double?
         
         // Define all metric types to query
@@ -322,10 +322,11 @@ class RunningDataManager {
         }
         
         group.notify(queue: .main) {
-            // Calculate cadence if we have steps and duration
-            if let steps = totalSteps, activity.duration > 0 {
-                // Cadence = steps per minute
-                activity.cadence = (steps / activity.duration) * 60.0
+            if let steps = totalSteps, steps > 0, activity.duration > 0 {
+                activity.estimatedCadence = (steps / activity.duration) * 60.0
+                activity.cadenceNote = "Estimated from step count and duration."
+            } else {
+                activity.cadenceNote = "Not enough step-count data to calculate cadence."
             }
             
             completion(activity)
