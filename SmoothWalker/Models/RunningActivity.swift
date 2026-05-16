@@ -27,7 +27,8 @@ struct RunningActivity {
     var groundContactTime: Double? // milliseconds
     var strideLength: Double? // meters
     var verticalOscillation: Double? // meters
-    var cadence: Double? // steps per minute
+    var estimatedCadence: Double? // steps per minute, calculated from workout step samples
+    var cadenceNote: String?
     
     // Calculated properties
     var averagePaceMinutesPerKm: Double? {

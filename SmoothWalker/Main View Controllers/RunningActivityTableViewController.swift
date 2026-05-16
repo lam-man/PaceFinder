@@ -93,7 +93,7 @@ class RunningActivitiesTableViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
         
         let activity = runningActivities[indexPath.row]
-//        let detailVC = RunningActivityDetailViewController(activity: activity)
-//        navigationController?.pushViewController(detailVC, animated: true)
+        let detailVC = RunningActivityDetailViewController(activity: activity)
+        navigationController?.pushViewController(detailVC, animated: true)
     }
 }

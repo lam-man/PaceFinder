@@ -10,6 +10,7 @@
 		BDF6A03B2EC0399600CCD995 /* RunningActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A03A2EC0398F00CCD995 /* RunningActivity.swift */; };
 		BDF6A03D2EC043B800CCD995 /* RunningDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A03C2EC043AE00CCD995 /* RunningDataManager.swift */; };
 		BDF6A03F2EC04F5400CCD995 /* RunningActivityTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A03E2EC04F3400CCD995 /* RunningActivityTableViewController.swift */; };
+		BDF6A0432EC1000000CCD995 /* RunningActivityDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A0422EC1000000CCD995 /* RunningActivityDetailViewController.swift */; };
 		BDF6A0412EC04F8200CCD995 /* RunningActivityTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A0402EC04F7500CCD995 /* RunningActivityTableCell.swift */; };
 		EB12722B24859C1600548CD1 /* DataTypeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722A24859C1600548CD1 /* DataTypeTableViewCell.swift */; };
 		EB12722D2485BA9400548CD1 /* HealthDataTypeValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722C2485BA9400548CD1 /* HealthDataTypeValue.swift */; };
@@ -49,6 +50,7 @@
 		BDF6A03A2EC0398F00CCD995 /* RunningActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivity.swift; sourceTree = "<group>"; };
 		BDF6A03C2EC043AE00CCD995 /* RunningDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningDataManager.swift; sourceTree = "<group>"; };
 		BDF6A03E2EC04F3400CCD995 /* RunningActivityTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivityTableViewController.swift; sourceTree = "<group>"; };
+		BDF6A0422EC1000000CCD995 /* RunningActivityDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivityDetailViewController.swift; sourceTree = "<group>"; };
 		BDF6A0402EC04F7500CCD995 /* RunningActivityTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivityTableCell.swift; sourceTree = "<group>"; };
 		DDC3EAD6D9404AADDCC92FF8 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		EB12722A24859C1600548CD1 /* DataTypeTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTypeTableViewCell.swift; sourceTree = "<group>"; };
@@ -196,6 +198,7 @@
 			isa = PBXGroup;
 			children = (
 				BDF6A03E2EC04F3400CCD995 /* RunningActivityTableViewController.swift */,
+				BDF6A0422EC1000000CCD995 /* RunningActivityDetailViewController.swift */,
 				EB9525BF2474C9C2001B5178 /* WelcomeViewController.swift */,
 				EB9525B62474C396001B5178 /* WeeklyDataTableViewController.swift */,
 				EB644F9E24730E2B00CF27F0 /* MobilityChartDataViewController.swift */,
@@ -366,6 +369,7 @@
 				BDF6A03B2EC0399600CCD995 /* RunningActivity.swift in Sources */,
 				EB9525BE2474C9A2001B5178 /* SplashScreenViewController.swift in Sources */,
 				BDF6A03F2EC04F5400CCD995 /* RunningActivityTableViewController.swift in Sources */,
+				BDF6A0432EC1000000CCD995 /* RunningActivityDetailViewController.swift in Sources */,
 				EB9525BA2474C8F2001B5178 /* ChartTableViewController.swift in Sources */,
 				EB644FA1247311DF00CF27F0 /* Network.swift in Sources */,
 				EB12722F2485C83E00548CD1 /* EmptyDataBackgroundView.swift in Sources */,
