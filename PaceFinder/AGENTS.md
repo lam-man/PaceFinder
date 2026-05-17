@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-SmoothWalker is an iOS mobility health app written in Swift. The workspace is organized around UIKit/AppDelegate-era app structure with feature code grouped into folders such as `Models`, `Data`, `Interface`, `Main View Controllers`, `Cells`, `Utilities`, and `Supporting Files`.
+PaceFinder is an iOS mobility health app written in Swift. The workspace is organized around UIKit/AppDelegate-era app structure with feature code grouped into folders such as `Models`, `Data`, `Interface`, `Main View Controllers`, `Cells`, `Utilities`, and `Supporting Files`.
 
 ## User Background
 

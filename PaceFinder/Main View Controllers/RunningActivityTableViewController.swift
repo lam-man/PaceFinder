@@ -1,6 +1,6 @@
 //
 //  RunningActivityTableViewController.swift
-//  SmoothWalker
+//  PaceFinder
 //
 //  Created by Wen Lin on 11/8/25.
 //  Copyright © 2025 Apple. All rights reserved.
@@ -14,6 +14,8 @@ class RunningActivitiesTableViewController: UITableViewController {
     
     private let runningDataManager = RunningDataManager()
     private var runningActivities: [RunningActivity] = []
+    private var hasLoadedInitialData = false
+    private var isLoadingData = false
     
     // MARK: - View Life Cycle
     
@@ -27,14 +29,8 @@ class RunningActivitiesTableViewController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // Request authorization and load data
-        HealthData.requestRunningDataAccess { [weak self] success in
-            if success {
-                self?.loadRunningData()
-            } else {
-                print("Running data access denied")
-            }
-        }
+        guard !hasLoadedInitialData, !isLoadingData else { return }
+        requestAuthorizationAndLoadData(forceReload: false)
     }
     
     // MARK: - Setup
@@ -43,7 +39,6 @@ class RunningActivitiesTableViewController: UITableViewController {
         title = "Activities"
         navigationController?.navigationBar.prefersLargeTitles = true
         
-        // Add refresh control
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
         self.refreshControl = refreshControl
@@ -58,18 +53,48 @@ class RunningActivitiesTableViewController: UITableViewController {
     
     // MARK: - Data Loading
     
-    private func loadRunningData() {
+    private func requestAuthorizationAndLoadData(forceReload: Bool) {
+        guard !isLoadingData else { return }
+        isLoadingData = true
+        
+        HealthData.requestRunningDataAccess { [weak self] success in
+            guard let self else { return }
+            
+            if success {
+                self.loadRunningData(forceReload: forceReload)
+            } else {
+                DispatchQueue.main.async {
+                    self.isLoadingData = false
+                    self.refreshControl?.endRefreshing()
+                    print("Running data access denied")
+                }
+            }
+        }
+    }
+    
+    private func loadRunningData(forceReload: Bool) {
+        if hasLoadedInitialData && !forceReload {
+            DispatchQueue.main.async {
+                self.isLoadingData = false
+                self.refreshControl?.endRefreshing()
+            }
+            return
+        }
+        
         runningDataManager.fetchRunningActivities { [weak self] activities in
             DispatchQueue.main.async {
-                self?.runningActivities = activities
-                self?.tableView.reloadData()
-                self?.refreshControl?.endRefreshing()
+                guard let self else { return }
+                self.runningActivities = activities
+                self.hasLoadedInitialData = true
+                self.isLoadingData = false
+                self.tableView.reloadData()
+                self.refreshControl?.endRefreshing()
             }
         }
     }
     
     @objc private func refreshData() {
-        loadRunningData()
+        requestAuthorizationAndLoadData(forceReload: true)
     }
     
     // MARK: - Table View Data Source

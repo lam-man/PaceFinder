@@ -1,6 +1,6 @@
 //
 //  RunningActivityDetailViewController.swift
-//  SmoothWalker
+//  PaceFinder
 //
 //  Created by Codex on 5/16/26.
 //  Copyright © 2026 Apple. All rights reserved.

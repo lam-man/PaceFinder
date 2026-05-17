@@ -28,8 +28,7 @@ class WelcomeViewController: SplashScreenViewController, SplashScreenViewControl
         view.backgroundColor = .systemBackground
         splashScreenDelegate = self
         actionButton.setTitle("Authorize HealthKit Access", for: .normal)
-
-        getHealthAuthorizationRequestStatus()
+        descriptionLabel.text = "Authorize HealthKit when you are ready. Activity and analytics data will load after you opt in."
     }
     
     func getHealthAuthorizationRequestStatus() {

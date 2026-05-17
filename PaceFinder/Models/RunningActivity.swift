@@ -1,6 +1,6 @@
 //
 //  RunningActivity.swift
-//  SmoothWalker
+//  PaceFinder
 //
 //  Created by Wen Lin on 11/8/25.
 //  Copyright © 2025 Apple. All rights reserved.

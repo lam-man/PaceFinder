@@ -7,7 +7,7 @@ The main tab view controller used in the app.
 
 import UIKit
 
-/// The tab view controller for the app. The controller will load the last viewed view controller on `viewDidLoad`.
+/// The tab view controller for the app.
 class MainTabViewController: UITabBarController {
     
     // MARK: - Initializers
@@ -36,8 +36,9 @@ class MainTabViewController: UITabBarController {
             UINavigationController(rootViewController: $0)
         }
         
-        delegate = self
-        selectedIndex = safeSelectedIndex()
+        // Start on the lightest tab so the app becomes interactive before
+        // users opt into heavier data-loading surfaces.
+        selectedIndex = 3
     }
     
     private func createActivitiesViewController() -> UIViewController {
@@ -60,8 +61,10 @@ class MainTabViewController: UITabBarController {
     }
     
     private func createAnalyticsViewController() -> UIViewController {
-        let viewController = MobilityChartDataViewController()
-        viewController.title = "Analytics"
+        let viewController = PlaceholderTabViewController(
+            titleText: "Analytics",
+            messageText: "Pace trends, weekly insights, and training analysis will appear here."
+        )
         viewController.tabBarItem = UITabBarItem(title: "Analytics",
                                                  image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
                                                  selectedImage: UIImage(systemName: "chart.line.uptrend.xyaxis.circle.fill"))
@@ -86,30 +89,6 @@ class MainTabViewController: UITabBarController {
                                                  image: UIImage(systemName: "person.circle"),
                                                  selectedImage: UIImage(systemName: "person.circle.fill"))
         return viewController
-    }
-    
-    // MARK: - View Persistence
-    
-    private static let lastViewControllerViewed = "LastViewControllerViewed"
-    private var userDefaults = UserDefaults.standard
-    
-    private func safeSelectedIndex() -> Int {
-        let savedIndex = (userDefaults.object(forKey: Self.lastViewControllerViewed) as? Int) ?? 0
-        let lastIndex = max((viewControllers?.count ?? 1) - 1, 0)
-        return min(savedIndex, lastIndex)
-    }
-}
-
-// MARK: - UITabBarControllerDelegate
-extension MainTabViewController: UITabBarControllerDelegate {
-    override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
-        guard let index = tabBar.items?.firstIndex(of: item) else { return }
-        
-        setLastViewedViewControllerIndex(index)
-    }
-    
-    private func setLastViewedViewControllerIndex(_ index: Int) {
-        userDefaults.set(index, forKey: Self.lastViewControllerViewed)
     }
 }
 
