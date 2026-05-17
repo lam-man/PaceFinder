@@ -6,7 +6,6 @@ The main tab view controller used in the app.
 */
 
 import UIKit
-import HealthKit
 
 /// The tab view controller for the app. The controller will load the last viewed view controller on `viewDidLoad`.
 class MainTabViewController: UITabBarController {
@@ -25,89 +24,67 @@ class MainTabViewController: UITabBarController {
     
     // MARK: - Setup
     
-//    func setUpTabViewController() {
-//        let viewControllers = [
-//            createWelcomeViewController(),
-//            createWeeklyQuantitySampleTableViewController(),
-//            createChartViewController(),
-//            createWeeklyReportViewController()
-//        ]
-//        
-//        self.viewControllers = viewControllers.map {
-//            UINavigationController(rootViewController: $0)
-//        }
-//        
-//        delegate = self
-//        selectedIndex = getLastViewedViewControllerIndex()
-//    }
     func setUpTabViewController() {
-        var viewControllers: [UIViewController] = [
-            createWelcomeViewController(),
-            createWeeklyQuantitySampleTableViewController()
+        let viewControllers: [UIViewController] = [
+            createActivitiesViewController(),
+            createAnalyticsViewController(),
+            createChatViewController(),
+            createProfileViewController()
         ]
-        
-        // Add Running Activities tab only for iOS 16.0+
-        if #available(iOS 16.0, *) {
-            viewControllers.append(createRunningActivitiesViewController())
-        }
-        
-        viewControllers.append(contentsOf: [
-            createChartViewController(),
-            createWeeklyReportViewController()
-        ])
         
         self.viewControllers = viewControllers.map {
             UINavigationController(rootViewController: $0)
         }
         
         delegate = self
-        selectedIndex = getLastViewedViewControllerIndex()
+        selectedIndex = safeSelectedIndex()
     }
     
-    private func createWelcomeViewController() -> UIViewController {
+    private func createActivitiesViewController() -> UIViewController {
+        if #available(iOS 16.0, *) {
+            let viewController = RunningActivitiesTableViewController()
+            viewController.tabBarItem = UITabBarItem(title: "Activities",
+                                                     image: UIImage(systemName: "figure.run"),
+                                                     selectedImage: UIImage(systemName: "figure.run.circle.fill"))
+            return viewController
+        }
+        
+        let viewController = PlaceholderTabViewController(
+            titleText: "Activities",
+            messageText: "Running activities require iOS 16 or later."
+        )
+        viewController.tabBarItem = UITabBarItem(title: "Activities",
+                                                 image: UIImage(systemName: "figure.run"),
+                                                 selectedImage: UIImage(systemName: "figure.run.circle.fill"))
+        return viewController
+    }
+    
+    private func createAnalyticsViewController() -> UIViewController {
+        let viewController = MobilityChartDataViewController()
+        viewController.title = "Analytics"
+        viewController.tabBarItem = UITabBarItem(title: "Analytics",
+                                                 image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
+                                                 selectedImage: UIImage(systemName: "chart.line.uptrend.xyaxis.circle.fill"))
+        return viewController
+    }
+    
+    private func createChatViewController() -> UIViewController {
+        let viewController = PlaceholderTabViewController(
+            titleText: "Chat",
+            messageText: "Coaching conversations and assistant chat will live here."
+        )
+        viewController.tabBarItem = UITabBarItem(title: "Chat",
+                                                 image: UIImage(systemName: "message"),
+                                                 selectedImage: UIImage(systemName: "message.fill"))
+        return viewController
+    }
+    
+    private func createProfileViewController() -> UIViewController {
         let viewController = WelcomeViewController()
         
-        viewController.tabBarItem = UITabBarItem(title: "Welcome",
-                                                 image: UIImage(systemName: "circle"),
-                                                 selectedImage: UIImage(systemName: "circle.fill"))
-        return viewController
-    }
-    
-    private func createWeeklyQuantitySampleTableViewController() -> UIViewController {
-        let dataTypeIdentifier = HKQuantityTypeIdentifier.stepCount.rawValue
-        let viewController = WeeklyQuantitySampleTableViewController(dataTypeIdentifier: dataTypeIdentifier)
-        
-        viewController.tabBarItem = UITabBarItem(title: "Health Data",
-                                                 image: UIImage(systemName: "triangle"),
-                                                 selectedImage: UIImage(systemName: "triangle.fill"))
-        return viewController
-    }
-    
-    private func createChartViewController() -> UIViewController {
-        let viewController = MobilityChartDataViewController()
-        
-        viewController.tabBarItem = UITabBarItem(title: "Charts",
-                                                 image: UIImage(systemName: "square"),
-                                                 selectedImage: UIImage(systemName: "square.fill"))
-        return viewController
-    }
-    
-    private func createWeeklyReportViewController() -> UIViewController {
-        let viewController = WeeklyReportTableViewController()
-        
-        viewController.tabBarItem = UITabBarItem(title: "Weekly Report",
-                                                 image: UIImage(systemName: "star"),
-                                                 selectedImage: UIImage(systemName: "star.fill"))
-        return viewController
-    }
-    
-    @available(iOS 16.0, *)
-    private func createRunningActivitiesViewController() -> UIViewController {
-        let viewController = RunningActivitiesTableViewController()
-        
-        viewController.tabBarItem = UITabBarItem(title: "Running",
-                                               image: UIImage(systemName: "figure.run"),
-                                               selectedImage: UIImage(systemName: "figure.run.circle.fill"))
+        viewController.tabBarItem = UITabBarItem(title: "Profile",
+                                                 image: UIImage(systemName: "person.circle"),
+                                                 selectedImage: UIImage(systemName: "person.circle.fill"))
         return viewController
     }
     
@@ -116,12 +93,10 @@ class MainTabViewController: UITabBarController {
     private static let lastViewControllerViewed = "LastViewControllerViewed"
     private var userDefaults = UserDefaults.standard
     
-    private func getLastViewedViewControllerIndex() -> Int {
-        if let index = userDefaults.object(forKey: Self.lastViewControllerViewed) as? Int {
-            return index
-        }
-        
-        return 0 // Default to first view controller.
+    private func safeSelectedIndex() -> Int {
+        let savedIndex = (userDefaults.object(forKey: Self.lastViewControllerViewed) as? Int) ?? 0
+        let lastIndex = max((viewControllers?.count ?? 1) - 1, 0)
+        return min(savedIndex, lastIndex)
     }
 }
 
@@ -135,5 +110,43 @@ extension MainTabViewController: UITabBarControllerDelegate {
     
     private func setLastViewedViewControllerIndex(_ index: Int) {
         userDefaults.set(index, forKey: Self.lastViewControllerViewed)
+    }
+}
+
+private final class PlaceholderTabViewController: UIViewController {
+    
+    private let titleText: String
+    private let messageText: String
+    
+    init(titleText: String, messageText: String) {
+        self.titleText = titleText
+        self.messageText = messageText
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        title = titleText
+        view.backgroundColor = .systemBackground
+        
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = messageText
+        label.textColor = .secondaryLabel
+        label.font = .preferredFont(forTextStyle: .body)
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        
+        view.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            label.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
 }

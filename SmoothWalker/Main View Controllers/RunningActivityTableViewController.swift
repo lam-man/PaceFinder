@@ -40,7 +40,7 @@ class RunningActivitiesTableViewController: UITableViewController {
     // MARK: - Setup
     
     private func setupViewController() {
-        title = "Running Activities"
+        title = "Activities"
         navigationController?.navigationBar.prefersLargeTitles = true
         
         // Add refresh control
