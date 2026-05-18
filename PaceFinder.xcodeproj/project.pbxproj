@@ -12,34 +12,16 @@
 		BDF6A03F2EC04F5400CCD995 /* RunningActivityTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A03E2EC04F3400CCD995 /* RunningActivityTableViewController.swift */; };
 		BDF6A0432EC1000000CCD995 /* RunningActivityDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A0422EC1000000CCD995 /* RunningActivityDetailViewController.swift */; };
 		BDF6A0412EC04F8200CCD995 /* RunningActivityTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A0402EC04F7500CCD995 /* RunningActivityTableCell.swift */; };
-		EB12722B24859C1600548CD1 /* DataTypeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722A24859C1600548CD1 /* DataTypeTableViewCell.swift */; };
-		EB12722D2485BA9400548CD1 /* HealthDataTypeValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722C2485BA9400548CD1 /* HealthDataTypeValue.swift */; };
-		EB12722F2485C83E00548CD1 /* EmptyDataBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB12722E2485C83E00548CD1 /* EmptyDataBackgroundView.swift */; };
-		EB1272332485D5D200548CD1 /* DataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB1272322485D5D200548CD1 /* DataTableViewController.swift */; };
 		EB1B0CAA2486D7A700724782 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = EB1B0CAC2486D7A700724782 /* Localizable.stringsdict */; };
-		EB2ACB972492B2D600DEFA22 /* CareKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = EB2ACB962492B2D600DEFA22 /* CareKitUI */; };
-		EB305B7C2485D99B007A7694 /* HealthQueryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB305B7B2485D99B007A7694 /* HealthQueryTableViewController.swift */; };
 		EB305B7E2485E4B8007A7694 /* HealthKitSupport+Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB305B7D2485E4B8007A7694 /* HealthKitSupport+Strings.swift */; };
 		EB326B4E246B16AD00FEFD08 /* MainTabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB326B4D246B16AD00FEFD08 /* MainTabViewController.swift */; };
 		EB326B50246B1B5700FEFD08 /* HealthData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB326B4F246B1B5700FEFD08 /* HealthData.swift */; };
 		EB48C1C1246B2EB800AE8FE3 /* UIApplication+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB48C1C0246B2EB800AE8FE3 /* UIApplication+Extension.swift */; };
-		EB48C1C4246B351C00AE8FE3 /* CareKitSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB48C1C3246B351C00AE8FE3 /* CareKitSupport.swift */; };
-		EB48C1CA246B3A0300AE8FE3 /* ChartViewStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB48C1C9246B3A0300AE8FE3 /* ChartViewStyle.swift */; };
-		EB644F9F24730E2B00CF27F0 /* MobilityChartDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB644F9E24730E2B00CF27F0 /* MobilityChartDataViewController.swift */; };
-		EB644FA1247311DF00CF27F0 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB644FA0247311DF00CF27F0 /* Network.swift */; };
-		EB644FA32473136500CF27F0 /* ServerResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB644FA22473136500CF27F0 /* ServerResponse.swift */; };
-		EB9525B324735827001B5178 /* MockServerResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = EB9525B224735827001B5178 /* MockServerResponse.json */; };
-		EB9525B52474C282001B5178 /* HealthDataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525B42474C282001B5178 /* HealthDataTableViewController.swift */; };
-		EB9525B72474C396001B5178 /* WeeklyDataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525B62474C396001B5178 /* WeeklyDataTableViewController.swift */; };
-		EB9525BA2474C8F2001B5178 /* ChartTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525B92474C8F2001B5178 /* ChartTableViewController.swift */; };
-		EB9525BC2474C930001B5178 /* WeeklyReportTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525BB2474C930001B5178 /* WeeklyReportTableViewController.swift */; };
 		EB9525BE2474C9A2001B5178 /* SplashScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525BD2474C9A2001B5178 /* SplashScreenViewController.swift */; };
 		EB9525C02474C9C2001B5178 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525BF2474C9C2001B5178 /* WelcomeViewController.swift */; };
 		EB9525C22475BD41001B5178 /* HealthKitSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525C12475BD41001B5178 /* HealthKitSupport.swift */; };
-		EBEF213C2462289B0055F482 /* FeedItemCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBEF213B2462289B0055F482 /* FeedItemCollectionViewCell.swift */; };
 		F9907AF32458947C00987667 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9907AF22458947C00987667 /* AppDelegate.swift */; };
 		F9907AF52458947C00987667 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9907AF42458947C00987667 /* SceneDelegate.swift */; };
-		F9907AF72458947C00987667 /* FeedItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9907AF62458947C00987667 /* FeedItemViewController.swift */; };
 		F9907AFC2458947D00987667 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F9907AFB2458947D00987667 /* Assets.xcassets */; };
 		F9907AFF2458947D00987667 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F9907AFD2458947D00987667 /* LaunchScreen.storyboard */; };
 		F9907B09245894E600987667 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9907B08245894E600987667 /* HealthKit.framework */; };
@@ -53,34 +35,17 @@
 		BDF6A0422EC1000000CCD995 /* RunningActivityDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivityDetailViewController.swift; sourceTree = "<group>"; };
 		BDF6A0402EC04F7500CCD995 /* RunningActivityTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivityTableCell.swift; sourceTree = "<group>"; };
 		DDC3EAD6D9404AADDCC92FF8 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		EB12722A24859C1600548CD1 /* DataTypeTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTypeTableViewCell.swift; sourceTree = "<group>"; };
-		EB12722C2485BA9400548CD1 /* HealthDataTypeValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDataTypeValue.swift; sourceTree = "<group>"; };
-		EB12722E2485C83E00548CD1 /* EmptyDataBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyDataBackgroundView.swift; sourceTree = "<group>"; };
-		EB1272322485D5D200548CD1 /* DataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTableViewController.swift; sourceTree = "<group>"; };
 		EB1B0CAB2486D7A700724782 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
-		EB305B7B2485D99B007A7694 /* HealthQueryTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthQueryTableViewController.swift; sourceTree = "<group>"; };
 		EB305B7D2485E4B8007A7694 /* HealthKitSupport+Strings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "HealthKitSupport+Strings.swift"; sourceTree = "<group>"; };
 		EB326B4D246B16AD00FEFD08 /* MainTabViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabViewController.swift; sourceTree = "<group>"; };
 		EB326B4F246B1B5700FEFD08 /* HealthData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthData.swift; sourceTree = "<group>"; };
 		EB48C1C0246B2EB800AE8FE3 /* UIApplication+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+Extension.swift"; sourceTree = "<group>"; };
-		EB48C1C3246B351C00AE8FE3 /* CareKitSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareKitSupport.swift; sourceTree = "<group>"; };
-		EB48C1C9246B3A0300AE8FE3 /* ChartViewStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartViewStyle.swift; sourceTree = "<group>"; };
-		EB644F9E24730E2B00CF27F0 /* MobilityChartDataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobilityChartDataViewController.swift; sourceTree = "<group>"; };
-		EB644FA0247311DF00CF27F0 /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
-		EB644FA22473136500CF27F0 /* ServerResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerResponse.swift; sourceTree = "<group>"; };
-		EB9525B224735827001B5178 /* MockServerResponse.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = MockServerResponse.json; sourceTree = "<group>"; };
-		EB9525B42474C282001B5178 /* HealthDataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDataTableViewController.swift; sourceTree = "<group>"; };
-		EB9525B62474C396001B5178 /* WeeklyDataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyDataTableViewController.swift; sourceTree = "<group>"; };
-		EB9525B92474C8F2001B5178 /* ChartTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartTableViewController.swift; sourceTree = "<group>"; };
-		EB9525BB2474C930001B5178 /* WeeklyReportTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReportTableViewController.swift; sourceTree = "<group>"; };
 		EB9525BD2474C9A2001B5178 /* SplashScreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenViewController.swift; sourceTree = "<group>"; };
 		EB9525BF2474C9C2001B5178 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		EB9525C12475BD41001B5178 /* HealthKitSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitSupport.swift; sourceTree = "<group>"; };
-		EBEF213B2462289B0055F482 /* FeedItemCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemCollectionViewCell.swift; sourceTree = "<group>"; };
 		F9907AEF2458947C00987667 /* PaceFinder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PaceFinder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9907AF22458947C00987667 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F9907AF42458947C00987667 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		F9907AF62458947C00987667 /* FeedItemViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemViewController.swift; sourceTree = "<group>"; };
 		F9907AFB2458947D00987667 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F9907AFE2458947D00987667 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F9907B002458947D00987667 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -94,7 +59,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB2ACB972492B2D600DEFA22 /* CareKitUI in Frameworks */,
 				F9907B09245894E600987667 /* HealthKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -121,10 +85,6 @@
 		EB1272342485D7BA00548CD1 /* Table View Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				EB1272322485D5D200548CD1 /* DataTableViewController.swift */,
-				EB9525B42474C282001B5178 /* HealthDataTableViewController.swift */,
-				EB9525B92474C8F2001B5178 /* ChartTableViewController.swift */,
-				EB305B7B2485D99B007A7694 /* HealthQueryTableViewController.swift */,
 			);
 			path = "Table View Controllers";
 			sourceTree = "<group>";
@@ -140,7 +100,6 @@
 		EB1B0CA42486CEA100724782 /* Collection View Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				F9907AF62458947C00987667 /* FeedItemViewController.swift */,
 			);
 			path = "Collection View Controllers";
 			sourceTree = "<group>";
@@ -148,8 +107,6 @@
 		EB1B0CA52486CEAB00724782 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				EB48C1C9246B3A0300AE8FE3 /* ChartViewStyle.swift */,
-				EB12722E2485C83E00548CD1 /* EmptyDataBackgroundView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -166,8 +123,6 @@
 			isa = PBXGroup;
 			children = (
 				BDF6A03A2EC0398F00CCD995 /* RunningActivity.swift */,
-				EB12722C2485BA9400548CD1 /* HealthDataTypeValue.swift */,
-				EB644FA22473136500CF27F0 /* ServerResponse.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -177,8 +132,6 @@
 			children = (
 				BDF6A03C2EC043AE00CCD995 /* RunningDataManager.swift */,
 				EB326B4F246B1B5700FEFD08 /* HealthData.swift */,
-				EB644FA0247311DF00CF27F0 /* Network.swift */,
-				EB9525B224735827001B5178 /* MockServerResponse.json */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -200,9 +153,6 @@
 				BDF6A03E2EC04F3400CCD995 /* RunningActivityTableViewController.swift */,
 				BDF6A0422EC1000000CCD995 /* RunningActivityDetailViewController.swift */,
 				EB9525BF2474C9C2001B5178 /* WelcomeViewController.swift */,
-				EB9525B62474C396001B5178 /* WeeklyDataTableViewController.swift */,
-				EB644F9E24730E2B00CF27F0 /* MobilityChartDataViewController.swift */,
-				EB9525BB2474C930001B5178 /* WeeklyReportTableViewController.swift */,
 			);
 			name = "View Controllers";
 			path = "Main View Controllers";
@@ -212,8 +162,6 @@
 			isa = PBXGroup;
 			children = (
 				BDF6A0402EC04F7500CCD995 /* RunningActivityTableCell.swift */,
-				EB12722A24859C1600548CD1 /* DataTypeTableViewCell.swift */,
-				EBEF213B2462289B0055F482 /* FeedItemCollectionViewCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -222,7 +170,6 @@
 			isa = PBXGroup;
 			children = (
 				EB48C1C0246B2EB800AE8FE3 /* UIApplication+Extension.swift */,
-				EB48C1C3246B351C00AE8FE3 /* CareKitSupport.swift */,
 				EB9525C12475BD41001B5178 /* HealthKitSupport.swift */,
 				EB305B7D2485E4B8007A7694 /* HealthKitSupport+Strings.swift */,
 			);
@@ -303,7 +250,6 @@
 			);
 			name = PaceFinder;
 			packageProductDependencies = (
-				EB2ACB962492B2D600DEFA22 /* CareKitUI */,
 			);
 			productName = PaceFinder;
 			productReference = F9907AEF2458947C00987667 /* PaceFinder.app */;
@@ -334,7 +280,6 @@
 			);
 			mainGroup = F9907AE62458947B00987667;
 			packageReferences = (
-				EB2ACB952492B2D600DEFA22 /* XCRemoteSwiftPackageReference "CareKit" */,
 			);
 			productRefGroup = F9907AF02458947C00987667 /* Products */;
 			projectDirPath = "";
@@ -352,7 +297,6 @@
 			files = (
 				EB1B0CAA2486D7A700724782 /* Localizable.stringsdict in Resources */,
 				F9907AFF2458947D00987667 /* LaunchScreen.storyboard in Resources */,
-				EB9525B324735827001B5178 /* MockServerResponse.json in Resources */,
 				F9907AFC2458947D00987667 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -364,36 +308,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EB12722D2485BA9400548CD1 /* HealthDataTypeValue.swift in Sources */,
-				F9907AF72458947C00987667 /* FeedItemViewController.swift in Sources */,
 				BDF6A03B2EC0399600CCD995 /* RunningActivity.swift in Sources */,
 				EB9525BE2474C9A2001B5178 /* SplashScreenViewController.swift in Sources */,
 				BDF6A03F2EC04F5400CCD995 /* RunningActivityTableViewController.swift in Sources */,
 				BDF6A0432EC1000000CCD995 /* RunningActivityDetailViewController.swift in Sources */,
-				EB9525BA2474C8F2001B5178 /* ChartTableViewController.swift in Sources */,
-				EB644FA1247311DF00CF27F0 /* Network.swift in Sources */,
-				EB12722F2485C83E00548CD1 /* EmptyDataBackgroundView.swift in Sources */,
-				EB9525B52474C282001B5178 /* HealthDataTableViewController.swift in Sources */,
-				EB305B7C2485D99B007A7694 /* HealthQueryTableViewController.swift in Sources */,
 				EB305B7E2485E4B8007A7694 /* HealthKitSupport+Strings.swift in Sources */,
-				EB644FA32473136500CF27F0 /* ServerResponse.swift in Sources */,
 				BDF6A03D2EC043B800CCD995 /* RunningDataManager.swift in Sources */,
 				EB326B50246B1B5700FEFD08 /* HealthData.swift in Sources */,
 				EB9525C22475BD41001B5178 /* HealthKitSupport.swift in Sources */,
-				EB9525BC2474C930001B5178 /* WeeklyReportTableViewController.swift in Sources */,
-				EBEF213C2462289B0055F482 /* FeedItemCollectionViewCell.swift in Sources */,
 				F9907AF32458947C00987667 /* AppDelegate.swift in Sources */,
 				F9907AF52458947C00987667 /* SceneDelegate.swift in Sources */,
-				EB9525B72474C396001B5178 /* WeeklyDataTableViewController.swift in Sources */,
 				EB48C1C1246B2EB800AE8FE3 /* UIApplication+Extension.swift in Sources */,
-				EB1272332485D5D200548CD1 /* DataTableViewController.swift in Sources */,
 				EB326B4E246B16AD00FEFD08 /* MainTabViewController.swift in Sources */,
-				EB48C1CA246B3A0300AE8FE3 /* ChartViewStyle.swift in Sources */,
 				BDF6A0412EC04F8200CCD995 /* RunningActivityTableCell.swift in Sources */,
-				EB48C1C4246B351C00AE8FE3 /* CareKitSupport.swift in Sources */,
-				EB644F9F24730E2B00CF27F0 /* MobilityChartDataViewController.swift in Sources */,
 				EB9525C02474C9C2001B5178 /* WelcomeViewController.swift in Sources */,
-				EB12722B24859C1600548CD1 /* DataTypeTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -609,22 +537,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		EB2ACB952492B2D600DEFA22 /* XCRemoteSwiftPackageReference "CareKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/carekit-apple/CareKit";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		EB2ACB962492B2D600DEFA22 /* CareKitUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EB2ACB952492B2D600DEFA22 /* XCRemoteSwiftPackageReference "CareKit" */;
-			productName = CareKitUI;
-		};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F9907AE72458947B00987667 /* Project object */;
