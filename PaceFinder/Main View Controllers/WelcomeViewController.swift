@@ -10,12 +10,12 @@ import HealthKit
 
 class WelcomeViewController: SplashScreenViewController, SplashScreenViewControllerDelegate {
     
-    let healthStore = HealthData.healthStore
+    lazy var healthStore = HealthData.healthStore
     
     /// The HealthKit data types we will request to read.
-    let readTypes = Set(HealthData.readDataTypes)
+    lazy var readTypes = Set(HealthData.readDataTypes)
     /// The HealthKit data types we will request to share and have write access.
-    let shareTypes = Set(HealthData.shareDataTypes)
+    lazy var shareTypes = Set(HealthData.shareDataTypes)
     
     var hasRequestedHealthData: Bool = false
     
@@ -81,6 +81,7 @@ class WelcomeViewController: SplashScreenViewController, SplashScreenViewControl
     // MARK: - SplashScreenViewController Delegate
     
     func didSelectActionButton() {
+        LaunchDiagnostics.log("WelcomeViewController didSelectActionButton — initializing HealthKit")
         requestHealthAuthorization()
     }
     
