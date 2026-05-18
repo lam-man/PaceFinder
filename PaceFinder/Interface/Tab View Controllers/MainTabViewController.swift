@@ -35,70 +35,112 @@ class MainTabViewController: UITabBarController {
     // MARK: - Setup
     
     func setUpTabViewController() {
-        let viewControllers: [UIViewController] = [
-            createActivitiesViewController(),
-            createAnalyticsViewController(),
-            createChatViewController(),
-            createProfileViewController()
+        viewControllers = [
+            createTabNavigationController(
+                title: "Activities",
+                imageName: "figure.run",
+                selectedImageName: "figure.run.circle.fill",
+                rootFactory: Self.makeActivitiesRootViewController
+            ),
+            createTabNavigationController(
+                title: "Analytics",
+                imageName: "chart.line.uptrend.xyaxis",
+                selectedImageName: "chart.line.uptrend.xyaxis.circle.fill",
+                rootFactory: Self.makeAnalyticsRootViewController
+            ),
+            createTabNavigationController(
+                title: "Chat",
+                imageName: "message",
+                selectedImageName: "message.fill",
+                rootFactory: Self.makeChatRootViewController
+            ),
+            createTabNavigationController(
+                title: "Profile",
+                imageName: "person.circle",
+                selectedImageName: "person.circle.fill",
+                rootFactory: Self.makeProfileRootViewController
+            )
         ]
-        
-        self.viewControllers = viewControllers.map {
-            UINavigationController(rootViewController: $0)
-        }
         
         // Start on the lightest tab so the app becomes interactive before
         // users opt into heavier data-loading surfaces.
         selectedIndex = 3
     }
     
-    private func createActivitiesViewController() -> UIViewController {
+    private func createTabNavigationController(
+        title: String,
+        imageName: String,
+        selectedImageName: String,
+        rootFactory: @escaping () -> UIViewController
+    ) -> UIViewController {
+        let navigationController = DeferredNavigationController(rootFactory: rootFactory)
+        navigationController.tabBarItem = UITabBarItem(
+            title: title,
+            image: UIImage(systemName: imageName),
+            selectedImage: UIImage(systemName: selectedImageName)
+        )
+        return navigationController
+    }
+    
+    private static func makeActivitiesRootViewController() -> UIViewController {
         if #available(iOS 16.0, *) {
-            let viewController = RunningActivitiesTableViewController()
-            viewController.tabBarItem = UITabBarItem(title: "Activities",
-                                                     image: UIImage(systemName: "figure.run"),
-                                                     selectedImage: UIImage(systemName: "figure.run.circle.fill"))
-            return viewController
+            return RunningActivitiesTableViewController()
         }
         
-        let viewController = PlaceholderTabViewController(
+        return PlaceholderTabViewController(
             titleText: "Activities",
             messageText: "Running activities require iOS 16 or later."
         )
-        viewController.tabBarItem = UITabBarItem(title: "Activities",
-                                                 image: UIImage(systemName: "figure.run"),
-                                                 selectedImage: UIImage(systemName: "figure.run.circle.fill"))
-        return viewController
     }
     
-    private func createAnalyticsViewController() -> UIViewController {
-        let viewController = PlaceholderTabViewController(
+    private static func makeAnalyticsRootViewController() -> UIViewController {
+        PlaceholderTabViewController(
             titleText: "Analytics",
             messageText: "Pace trends, weekly insights, and training analysis will appear here."
         )
-        viewController.tabBarItem = UITabBarItem(title: "Analytics",
-                                                 image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
-                                                 selectedImage: UIImage(systemName: "chart.line.uptrend.xyaxis.circle.fill"))
-        return viewController
     }
     
-    private func createChatViewController() -> UIViewController {
-        let viewController = PlaceholderTabViewController(
+    private static func makeChatRootViewController() -> UIViewController {
+        PlaceholderTabViewController(
             titleText: "Chat",
             messageText: "Coaching conversations and assistant chat will live here."
         )
-        viewController.tabBarItem = UITabBarItem(title: "Chat",
-                                                 image: UIImage(systemName: "message"),
-                                                 selectedImage: UIImage(systemName: "message.fill"))
-        return viewController
     }
     
-    private func createProfileViewController() -> UIViewController {
-        let viewController = WelcomeViewController()
+    private static func makeProfileRootViewController() -> UIViewController {
+        WelcomeViewController()
+    }
+}
+
+private final class DeferredNavigationController: UINavigationController {
+    
+    private let rootFactory: () -> UIViewController
+    private var hasInstalledRootViewController = false
+    
+    init(rootFactory: @escaping () -> UIViewController) {
+        self.rootFactory = rootFactory
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        installRootViewControllerIfNeeded()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        installRootViewControllerIfNeeded()
+    }
+    
+    private func installRootViewControllerIfNeeded() {
+        guard !hasInstalledRootViewController else { return }
         
-        viewController.tabBarItem = UITabBarItem(title: "Profile",
-                                                 image: UIImage(systemName: "person.circle"),
-                                                 selectedImage: UIImage(systemName: "person.circle.fill"))
-        return viewController
+        hasInstalledRootViewController = true
+        setViewControllers([rootFactory()], animated: false)
     }
 }
 
