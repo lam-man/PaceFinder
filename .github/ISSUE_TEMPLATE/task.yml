@@ -1,0 +1,41 @@
+name: 🧩 Task (agent-ready)
+description: A self-contained, executable task suitable for an agent to pick up.
+title: "[Task] "
+labels: ["task"]
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: Parent Design Issue
+      description: e.g. "#12"
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What exactly should be done? Keep it small and self-contained.
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Files / Modules Involved
+      description: List files or directories the agent should touch.
+    validations:
+      required: true
+  - type: textarea
+    id: ac
+    attributes:
+      label: Acceptance Criteria
+      description: Concrete, verifiable conditions for completion. CI must pass.
+    validations:
+      required: true
+  - type: textarea
+    id: deps
+    attributes:
+      label: Dependencies / Blockers
+      description: Other issues that must finish first.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Implementation Notes
+      description: Hints, constraints, references, code pointers.

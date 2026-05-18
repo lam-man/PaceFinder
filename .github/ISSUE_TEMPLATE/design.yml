@@ -1,0 +1,46 @@
+name: 📋 Design / Epic
+description: A design discussion or epic that will be broken down into tasks.
+title: "[Design] "
+labels: ["design", "needs-discussion"]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Background & Problem
+      description: What problem are we solving? Why now?
+    validations:
+      required: true
+  - type: textarea
+    id: goals
+    attributes:
+      label: Goals & Non-Goals
+      description: What is in scope? What is explicitly out of scope?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Approach
+      description: High-level design. Include alternatives considered if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: decisions
+    attributes:
+      label: Open Questions / Decisions Needed
+      description: Anything that needs alignment before breakdown into tasks.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: How do we know this epic is done?
+    validations:
+      required: true
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Task Breakdown (filled in after design is approved)
+      description: Link child task issues here once created.
+      value: |
+        - [ ] #
+        - [ ] #
