@@ -7,6 +7,15 @@ The application delegate.
 
 import UIKit
 
+enum LaunchDiagnostics {
+    static let startTime = CFAbsoluteTimeGetCurrent()
+
+    static func log(_ message: String) {
+        let elapsed = CFAbsoluteTimeGetCurrent() - startTime
+        print(String(format: "[Launch %.3fs] %@", elapsed, message))
+    }
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -14,8 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
-            
+        LaunchDiagnostics.log("application(_:didFinishLaunchingWithOptions:) finished")
         return true
     }
 
@@ -35,6 +43,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes,
         // as they will not return.
+    }
+
+    func application(_ application: UIApplication, shouldSaveSecureApplicationState coder: NSCoder) -> Bool {
+        LaunchDiagnostics.log("state restoration save disabled")
+        return false
+    }
+
+    func application(_ application: UIApplication, shouldRestoreSecureApplicationState coder: NSCoder) -> Bool {
+        LaunchDiagnostics.log("state restoration restore disabled")
+        return false
     }
 
 }

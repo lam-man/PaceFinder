@@ -29,6 +29,12 @@ class WelcomeViewController: SplashScreenViewController, SplashScreenViewControl
         splashScreenDelegate = self
         actionButton.setTitle("Authorize HealthKit Access", for: .normal)
         descriptionLabel.text = "Authorize HealthKit when you are ready. Activity and analytics data will load after you opt in."
+        LaunchDiagnostics.log("WelcomeViewController viewDidLoad")
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        LaunchDiagnostics.log("WelcomeViewController viewDidAppear")
     }
     
     func getHealthAuthorizationRequestStatus() {

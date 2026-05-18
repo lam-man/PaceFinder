@@ -12,6 +12,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        LaunchDiagnostics.log("scene(_:willConnectTo:) started")
+
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
@@ -25,6 +27,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
         
         window.makeKeyAndVisible()
+        LaunchDiagnostics.log("window.makeKeyAndVisible() finished")
+
+        DispatchQueue.main.async {
+            LaunchDiagnostics.log("main queue was available after initial window setup")
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

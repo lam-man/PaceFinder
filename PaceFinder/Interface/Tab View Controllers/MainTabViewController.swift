@@ -21,6 +21,16 @@ class MainTabViewController: UITabBarController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        LaunchDiagnostics.log("MainTabViewController viewDidLoad")
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        LaunchDiagnostics.log("MainTabViewController viewDidAppear")
+    }
     
     // MARK: - Setup
     
