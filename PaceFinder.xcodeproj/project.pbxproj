@@ -82,33 +82,12 @@
 			name = Configuration;
 			sourceTree = "<group>";
 		};
-		EB1272342485D7BA00548CD1 /* Table View Controllers */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "Table View Controllers";
-			sourceTree = "<group>";
-		};
 		EB1B0CA32486CE9A00724782 /* Tab View Controllers */ = {
 			isa = PBXGroup;
 			children = (
 				EB326B4D246B16AD00FEFD08 /* MainTabViewController.swift */,
 			);
 			path = "Tab View Controllers";
-			sourceTree = "<group>";
-		};
-		EB1B0CA42486CEA100724782 /* Collection View Controllers */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "Collection View Controllers";
-			sourceTree = "<group>";
-		};
-		EB1B0CA52486CEAB00724782 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Views;
 			sourceTree = "<group>";
 		};
 		EB1B0CA62486CEB000724782 /* View Controllers */ = {
@@ -179,11 +158,8 @@
 		EB9525B82474C6B6001B5178 /* Interface */ = {
 			isa = PBXGroup;
 			children = (
-				EB1B0CA42486CEA100724782 /* Collection View Controllers */,
 				EB1B0CA32486CE9A00724782 /* Tab View Controllers */,
-				EB1272342485D7BA00548CD1 /* Table View Controllers */,
 				EB1B0CA62486CEB000724782 /* View Controllers */,
-				EB1B0CA52486CEAB00724782 /* Views */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
