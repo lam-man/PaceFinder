@@ -17,11 +17,19 @@ defines how we collaborate so work stays parallel-friendly and reviewable.
    and approach are agreed.
 2. **Break down.** Agent Leader files `🧩 Task` issues, one per PR-sized unit,
    each linked to the parent design issue.
-3. **Dispatch.** Add the `agent-ready` label and (optionally) assign an agent.
-   Each task should be independently executable.
-4. **Implement.** Worker agent creates a branch, implements, opens a PR linked
+3. **Owner review (mandatory gate).** New task issues land with the
+   `needs-review` label. **No agent — human or AI — may pick up the issue
+   until the Owner has reviewed and approved it.** Approval is signaled by the
+   Owner removing `needs-review` and adding `agent-ready` (or commenting
+   `/approve` for the Agent Leader to relabel).
+4. **Dispatch.** Only after `agent-ready` is set may the Agent Leader assign
+   the issue to a worker agent (e.g. `copilot-swe-agent`) or a local
+   sub-agent. Each task must be independently executable.
+5. **Implement.** Worker agent creates a branch, implements, opens a PR linked
    to the task issue (`Closes #N`).
-5. **Review & merge.** CI must be green. Squash merge into `main`.
+6. **Review & merge.** CI must be green. Agent Leader reviews; Owner approves
+   feature-level PRs before merge (chore/infra PRs may be auto-merged by the
+   Agent Leader). Squash merge into `main`.
 
 ## Branch Naming
 
@@ -60,7 +68,8 @@ Types: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `perf`, `build`,
 |---|---|
 | `design` | Design discussion / epic |
 | `task` | Executable subtask |
-| `agent-ready` | Spec is complete; an agent can pick this up |
+| `needs-review` | New task; **awaiting Owner approval before dispatch** |
+| `agent-ready` | Owner-approved; an agent can now pick this up |
 | `bug` | Defect |
 | `blocked` | Cannot proceed; reason in comments |
 | `needs-discussion` | Awaiting alignment before work starts |
