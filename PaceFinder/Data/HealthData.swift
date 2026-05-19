@@ -41,6 +41,7 @@ class HealthData {
             // Always available
             HKQuantityTypeIdentifier.distanceWalkingRunning.rawValue,
             HKQuantityTypeIdentifier.heartRate.rawValue,
+            HKQuantityTypeIdentifier.restingHeartRate.rawValue,
             HKQuantityTypeIdentifier.stepCount.rawValue
         ]
         

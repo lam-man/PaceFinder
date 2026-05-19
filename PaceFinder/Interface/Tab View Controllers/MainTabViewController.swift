@@ -94,7 +94,10 @@ class MainTabViewController: UITabBarController {
     }
     
     private static func makeAnalyticsRootViewController() -> UIViewController {
-        PlaceholderTabViewController(
+        if #available(iOS 16.0, *) {
+            return AnalyticsViewController()
+        }
+        return PlaceholderTabViewController(
             titleText: "Analytics",
             messageText: "Pace trends, weekly insights, and training analysis will appear here."
         )
