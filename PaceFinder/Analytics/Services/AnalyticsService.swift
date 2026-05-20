@@ -3,7 +3,7 @@ import HealthKit
 
 // MARK: - Error type
 
-enum AnalyticsError: Error {
+enum AnalyticsError: Error, Equatable {
     case healthKitUnavailable
     case authorizationDenied
     case fetchFailed

@@ -40,6 +40,9 @@ class AnalyticsViewController: UIViewController {
     /// Prevents overlapping loads when the user taps the segment control rapidly.
     private var isLoadingData = false
 
+    /// First error encountered during the last load cycle (nil = success / no error yet).
+    private var loadError: AnalyticsError?
+
     /// Preferred distance unit queried from HealthKit (defaults to km).
     private var distanceUnit: HKUnit = HKUnit.meterUnit(with: .kilo)
 
@@ -134,6 +137,12 @@ class AnalyticsViewController: UIViewController {
             $0.removeFromParent()
         }
 
+        // Show an actionable banner if the last load produced an error.
+        if let error = loadError {
+            addErrorBanner(for: error)
+            return
+        }
+
         addSectionHeader("Training Load")
         addMileageChart()
         addACWRCard()
@@ -152,6 +161,37 @@ class AnalyticsViewController: UIViewController {
         label.font = .preferredFont(forTextStyle: .headline)
         label.textColor = .label
         contentStack.addArrangedSubview(label)
+    }
+
+    /// Shows a full-width card explaining the load error and how to resolve it.
+    private func addErrorBanner(for error: AnalyticsError) {
+        let (title, message, action): (String, String, String?)
+        switch error {
+        case .authorizationDenied:
+            title   = "Health Access Required"
+            message = "Analytics needs permission to read your workouts."
+            action  = "Open Settings"
+        case .healthKitUnavailable:
+            title   = "HealthKit Not Available"
+            message = "This device does not support HealthKit."
+            action  = nil
+        case .fetchFailed:
+            title   = "Could Not Load Data"
+            message = "An error occurred while fetching your workouts. Pull to refresh."
+            action  = nil
+        }
+
+        let card = SummaryCard(title: title, value: message, subtitle: action, valueColor: .systemOrange)
+        contentStack.addArrangedSubview(card)
+
+        // For authorization errors, provide a deep-link button to Settings.app.
+        if error == .authorizationDenied {
+            let button = UIButton(type: .system)
+            button.setTitle("Open Health Settings", for: .normal)
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.addTarget(self, action: #selector(openHealthSettings), for: .touchUpInside)
+            contentStack.addArrangedSubview(button)
+        }
     }
 
     private func addMileageChart() {
@@ -327,13 +367,17 @@ class AnalyticsViewController: UIViewController {
     private func loadData() {
         guard !isLoadingData else { return }
         isLoadingData = true
+        loadError = nil        // reset before fresh load
 
         let group = DispatchGroup()
 
         group.enter()
         analyticsService.fetchMileageReport { [weak self] result in
             DispatchQueue.main.async {
-                if case .success(let report) = result { self?.mileageReport = report }
+                switch result {
+                case .success(let report): self?.mileageReport = report
+                case .failure(let err):   self?.loadError = self?.loadError ?? err
+                }
                 group.leave()
             }
         }
@@ -341,7 +385,10 @@ class AnalyticsViewController: UIViewController {
         group.enter()
         analyticsService.fetchIntensityReport { [weak self] result in
             DispatchQueue.main.async {
-                if case .success(let report) = result { self?.intensityReport = report }
+                switch result {
+                case .success(let report): self?.intensityReport = report
+                case .failure(let err):   self?.loadError = self?.loadError ?? err
+                }
                 group.leave()
             }
         }
@@ -349,7 +396,10 @@ class AnalyticsViewController: UIViewController {
         group.enter()
         analyticsService.fetchPRReport { [weak self] result in
             DispatchQueue.main.async {
-                if case .success(let report) = result { self?.prReport = report }
+                switch result {
+                case .success(let report): self?.prReport = report
+                case .failure(let err):   self?.loadError = self?.loadError ?? err
+                }
                 group.leave()
             }
         }
@@ -380,5 +430,11 @@ class AnalyticsViewController: UIViewController {
     @objc private func openSettings() {
         let settingsVC = SettingsViewController()
         navigationController?.pushViewController(settingsVC, animated: true)
+    }
+
+    @objc private func openHealthSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
     }
 }
