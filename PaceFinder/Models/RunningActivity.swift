@@ -17,18 +17,18 @@ struct RunningActivity {
     let duration: TimeInterval
     
     // Core metrics
-    var distance: Double? // meters
-    var averageSpeed: Double? // m/s
-    var averageHeartRate: Double? // bpm
-    var maxHeartRate: Double? // bpm
+    var distance: Double? = nil // meters
+    var averageSpeed: Double? = nil // m/s
+    var averageHeartRate: Double? = nil // bpm
+    var maxHeartRate: Double? = nil // bpm
     
     // Advanced metrics (if available)
-    var averagePower: Double? // watts
-    var groundContactTime: Double? // milliseconds
-    var strideLength: Double? // meters
-    var verticalOscillation: Double? // meters
-    var estimatedCadence: Double? // steps per minute, calculated from workout step samples
-    var cadenceNote: String?
+    var averagePower: Double? = nil // watts
+    var groundContactTime: Double? = nil // milliseconds
+    var strideLength: Double? = nil // meters
+    var verticalOscillation: Double? = nil // meters
+    var estimatedCadence: Double? = nil // steps per minute, calculated from workout step samples
+    var cadenceNote: String? = nil
     
     // Calculated properties
     var averagePaceMinutesPerKm: Double? {

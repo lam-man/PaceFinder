@@ -76,7 +76,7 @@ class RunningActivityDetailViewController: UITableViewController {
     private static let cellIdentifier = "RunningActivityDetailCell"
     
     private func makeSections() -> [DetailSection] {
-        return [
+        var sections: [DetailSection] = [
             DetailSection(title: "Summary", rows: [
                 DetailRow(title: "Start", value: formattedDate(activity.startDate)),
                 DetailRow(title: "End", value: formattedDate(activity.endDate)),
@@ -98,6 +98,30 @@ class RunningActivityDetailViewController: UITableViewController {
                 DetailRow(title: "Vertical Oscillation", value: formattedMeters(activity.verticalOscillation))
             ])
         ]
+
+        // Heart Rate Analysis section (shown when average HR is available)
+        if let avgHR = activity.averageHeartRate {
+            let storedMax = UserDefaults.standard.double(forKey: "userHRmax")
+            let age = UserDefaults.standard.double(forKey: "userAge")
+            let effectiveAge = age > 0 ? age : 30
+            let maxHR = storedMax > 0 ? storedMax : 220 - effectiveAge
+
+            let calc = HRZoneCalculator()
+            let zoneStr: String
+            if let zone = calc.zoneFor(heartRate: avgHR, maxHR: maxHR) {
+                let pct = Int((avgHR / maxHR) * 100)
+                zoneStr = "\(zone.displayName) (\(pct)% of max HR)"
+            } else {
+                zoneStr = "Below Zone 1"
+            }
+
+            sections.append(DetailSection(title: "Heart Rate Analysis", rows: [
+                DetailRow(title: "HR Zone", value: zoneStr),
+                DetailRow(title: "HR Drift", value: "Requires per-sample heart rate data")
+            ]))
+        }
+
+        return sections
     }
     
     private func formattedDate(_ date: Date) -> String {

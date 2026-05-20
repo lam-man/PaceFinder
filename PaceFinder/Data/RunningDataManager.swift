@@ -226,154 +226,130 @@ class RunningDataManager {
     }
     
     private func fetchMetricsForWorkouts(_ workouts: [HKWorkout], completion: @escaping ([RunningActivity]) -> Void) {
-        let group = DispatchGroup()
-        var runningActivities: [RunningActivity] = []
-        
-        for workout in workouts {
-            group.enter()
-            
-            fetchMetricsForSingleWorkout(workout) { activity in
-                if let activity = activity {
-                    runningActivities.append(activity)
-                }
-                group.leave()
-            }
-        }
-        
-        group.notify(queue: .main) {
-            // Sort by start date (most recent first)
-            let sortedActivities = runningActivities.sorted { $0.startDate > $1.startDate }
-            completion(sortedActivities)
-        }
-    }
-    
-    private func fetchMetricsForSingleWorkout(_ workout: HKWorkout, completion: @escaping (RunningActivity?) -> Void) {
-        // FIXED: Use predicate for samples during workout time range
-        let workoutPredicate = HKQuery.predicateForSamples(
-            withStart: workout.startDate,
-            end: workout.endDate,
+        guard !workouts.isEmpty else { completion([]); return }
+
+        // Batch strategy: fire one HKSampleQuery per metric type across the full date span,
+        // then attribute each sample to the workout whose time range contains it.
+        // This reduces O(workouts × metrics) HealthKit IPC calls to O(metrics).
+        let overallStart = workouts.map(\.startDate).min()!
+        let overallEnd   = workouts.map(\.endDate).max()!
+        let datePredicate = HKQuery.predicateForSamples(
+            withStart: overallStart,
+            end: overallEnd,
             options: .strictStartDate
         )
-        
-        var activity = RunningActivity(
-            workoutIdentifier: workout.uuid,
-            startDate: workout.startDate,
-            endDate: workout.endDate,
-            duration: workout.duration,
-            distance: workout.totalDistance?.doubleValue(for: .meter())
-        )
-        
-        let group = DispatchGroup()
-        
-        // Track step count for an estimated cadence calculation.
-        var totalSteps: Double?
-        
-        // Define all metric types to query
-        let metricsToQuery: [(HKQuantityTypeIdentifier, HKUnit)] = [
-            (.heartRate, HKUnit.count().unitDivided(by: .minute())),
-            (.stepCount, HKUnit.count())
+
+        let allMetrics: [(HKQuantityTypeIdentifier, HKUnit)] = [
+            (.heartRate,                  .count().unitDivided(by: .minute())),
+            (.stepCount,                  .count()),
+            (.runningSpeed,               .meter().unitDivided(by: .second())),
+            (.runningPower,               .watt()),
+            (.runningGroundContactTime,   .secondUnit(with: .milli)),
+            (.runningStrideLength,        .meter()),
+            (.runningVerticalOscillation, .meter())
         ]
-        
-        // Add iOS 16+ metrics if available
-        var advancedMetrics: [(HKQuantityTypeIdentifier, HKUnit)] = []
-        if #available(iOS 16.0, *) {
-            advancedMetrics = [
-                (.runningSpeed, HKUnit.meter().unitDivided(by: .second())),
-                (.runningPower, HKUnit.watt()),
-                (.runningGroundContactTime, HKUnit.secondUnit(with: .milli)),
-                (.runningStrideLength, HKUnit.meter()),
-                (.runningVerticalOscillation, HKUnit.meter())
-            ]
-        }
-        
-        let allMetrics = metricsToQuery + advancedMetrics
-        
-        // Fetch each metric type
-        for (identifier, unit) in allMetrics {
-            guard let quantityType = HKQuantityType.quantityType(forIdentifier: identifier) else { continue }
-            
+        let unitByIdentifier = Dictionary(uniqueKeysWithValues: allMetrics)
+
+        let group = DispatchGroup()
+        let lock  = NSLock()
+        var samplesByMetric: [HKQuantityTypeIdentifier: [HKQuantitySample]] = [:]
+
+        for (identifier, _) in allMetrics {
+            guard let qType = HKQuantityType.quantityType(forIdentifier: identifier) else { continue }
             group.enter()
-            
             let query = HKSampleQuery(
-                sampleType: quantityType,
-                predicate: workoutPredicate,
+                sampleType: qType,
+                predicate: datePredicate,
                 limit: HKObjectQueryNoLimit,
                 sortDescriptors: nil
-            ) { query, samples, error in
+            ) { _, samples, error in
                 defer { group.leave() }
-                
-                guard let quantitySamples = samples as? [HKQuantitySample],
-                      error == nil,
-                      !quantitySamples.isEmpty else {
-                    return
-                }
-                
-                // Process the samples
-                self.processMetricSamples(
-                    quantitySamples,
-                    for: identifier,
-                    unit: unit,
-                    into: &activity,
-                    totalSteps: &totalSteps
-                )
+                guard let qs = samples as? [HKQuantitySample], error == nil else { return }
+                lock.lock()
+                samplesByMetric[identifier] = qs
+                lock.unlock()
             }
-            
             healthStore.execute(query)
         }
-        
-        group.notify(queue: .main) {
-            if let steps = totalSteps, steps > 0, activity.duration > 0 {
-                activity.estimatedCadence = (steps / activity.duration) * 60.0
-                activity.cadenceNote = "Estimated from step count and duration."
-            } else {
-                activity.cadenceNote = "Not enough step-count data to calculate cadence."
+
+        // Sort workouts once for O(n) sample attribution
+        let sortedWorkouts = workouts.sorted { $0.startDate < $1.startDate }
+
+        group.notify(queue: .global(qos: .userInitiated)) {
+            // Accumulate values per workout UUID
+            var hrValues:     [UUID: [Double]] = [:]
+            var speedValues:  [UUID: [Double]] = [:]
+            var powerValues:  [UUID: [Double]] = [:]
+            var gctValues:    [UUID: [Double]] = [:]
+            var strideValues: [UUID: [Double]] = [:]
+            var voValues:     [UUID: [Double]] = [:]
+            var stepTotals:   [UUID: Double]   = [:]
+
+            for (identifier, samples) in samplesByMetric {
+                guard let unit = unitByIdentifier[identifier] else { continue }
+                for sample in samples {
+                    guard let workout = sortedWorkouts.first(where: {
+                        sample.startDate >= $0.startDate && sample.startDate < $0.endDate
+                    }) else { continue }
+                    let uuid  = workout.uuid
+                    let value = sample.quantity.doubleValue(for: unit)
+                    switch identifier {
+                    case .heartRate:                  hrValues[uuid, default: []].append(value)
+                    case .stepCount:                  stepTotals[uuid, default: 0] += value
+                    case .runningSpeed:               speedValues[uuid, default: []].append(value)
+                    case .runningPower:               powerValues[uuid, default: []].append(value)
+                    case .runningGroundContactTime:   gctValues[uuid, default: []].append(value)
+                    case .runningStrideLength:        strideValues[uuid, default: []].append(value)
+                    case .runningVerticalOscillation: voValues[uuid, default: []].append(value)
+                    default: break
+                    }
+                }
             }
-            
-            completion(activity)
+
+            let activities: [RunningActivity] = workouts.map { workout in
+                let uuid = workout.uuid
+                var a = RunningActivity(
+                    workoutIdentifier: uuid,
+                    startDate: workout.startDate,
+                    endDate: workout.endDate,
+                    duration: workout.duration,
+                    distance: workout.totalDistance?.doubleValue(for: .meter())
+                )
+                if let hrs = hrValues[uuid], !hrs.isEmpty {
+                    a.averageHeartRate = hrs.reduce(0, +) / Double(hrs.count)
+                    a.maxHeartRate = hrs.max()
+                }
+                if let vs = speedValues[uuid], !vs.isEmpty {
+                    a.averageSpeed = vs.reduce(0, +) / Double(vs.count)
+                }
+                if let ps = powerValues[uuid], !ps.isEmpty {
+                    a.averagePower = ps.reduce(0, +) / Double(ps.count)
+                }
+                if let gs = gctValues[uuid], !gs.isEmpty {
+                    a.groundContactTime = gs.reduce(0, +) / Double(gs.count)
+                }
+                if let ss = strideValues[uuid], !ss.isEmpty {
+                    a.strideLength = ss.reduce(0, +) / Double(ss.count)
+                }
+                if let vs = voValues[uuid], !vs.isEmpty {
+                    a.verticalOscillation = vs.reduce(0, +) / Double(vs.count)
+                }
+                let steps = stepTotals[uuid] ?? 0
+                if steps > 0, a.duration > 0 {
+                    a.estimatedCadence = (steps / a.duration) * 60.0
+                    a.cadenceNote = "Estimated from step count and duration."
+                } else {
+                    a.cadenceNote = "Not enough step-count data to calculate cadence."
+                }
+                return a
+            }
+
+            DispatchQueue.main.async {
+                completion(activities.sorted { $0.startDate > $1.startDate })
+            }
         }
     }
     
-    @available(iOS 16.0, *)
-    private func processMetricSamples(
-        _ samples: [HKQuantitySample],
-        for identifier: HKQuantityTypeIdentifier,
-        unit: HKUnit,
-        into activity: inout RunningActivity,
-        totalSteps: inout Double?
-    ) {
-        let values = samples.map { $0.quantity.doubleValue(for: unit) }
-        guard !values.isEmpty else { return }
-        
-        let average = values.reduce(0, +) / Double(values.count)
-        
-        switch identifier {
-        case .heartRate:
-            activity.averageHeartRate = average
-            activity.maxHeartRate = values.max()
-            
-        case .stepCount:
-            // Sum steps for cadence calculation
-            totalSteps = values.reduce(0, +)
-            
-        case .runningSpeed:
-            activity.averageSpeed = average
-            
-        case .runningPower:
-            activity.averagePower = average
-            
-        case .runningGroundContactTime:
-            activity.groundContactTime = average
-            
-        case .runningStrideLength:
-            activity.strideLength = average
-            
-        case .runningVerticalOscillation:
-            activity.verticalOscillation = average
-            
-        default:
-            break
-        }
-    }
 }
 
 // MARK: - Helper Function

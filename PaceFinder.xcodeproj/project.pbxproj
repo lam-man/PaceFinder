@@ -25,6 +25,24 @@
 		F9907AFC2458947D00987667 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F9907AFB2458947D00987667 /* Assets.xcassets */; };
 		F9907AFF2458947D00987667 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F9907AFD2458947D00987667 /* LaunchScreen.storyboard */; };
 		F9907B09245894E600987667 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9907B08245894E600987667 /* HealthKit.framework */; };
+3EB13B9046685257BDD640FB /* HRZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06671AD11C80317FA3B1799D /* HRZone.swift */; };
+BD9C66B3AD3C2D6D1A3D1FA7 /* MileageReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8960A923B8C1E9392456DE /* MileageReport.swift */; };
+0822E8F36C031199972A8469 /* IntensityReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16419F828B9D2434E465E150 /* IntensityReport.swift */; };
+9A1DE644815EF6D13B8FAA18 /* PersonalRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F8A88B17FC695A07A0CA6E /* PersonalRecord.swift */; };
+B38A088CA65ED389B74D0FB1 /* HRZoneCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32E706298FADC1A606CB0FB3 /* HRZoneCalculator.swift */; };
+4737819096DA1DAC72FF5D2A /* TrainingLoadCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 386ECBE06B65A6A48B8148F6 /* TrainingLoadCalculator.swift */; };
+28DF6EC4CE4A2BBDC241330B /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A9E71FDE8A774BCF36D58B /* AnalyticsService.swift */; };
+371ECD7B27CD813047229389 /* SummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571AA8766C307511B2B9437A /* SummaryCard.swift */; };
+6142EA7D17BE31111A2A73ED /* WeeklyMileageChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562B0F79C37459EEF50BEA63 /* WeeklyMileageChart.swift */; };
+43B7A3A69A8DCA03580D7B71 /* HRZoneStackedBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F564135BE6128E18C26797 /* HRZoneStackedBar.swift */; };
+1FF49B7889463E85759CDE66 /* PaceHREfficiencyChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACFB3D00B1F9163CE9FF57F /* PaceHREfficiencyChart.swift */; };
+4B0DBB418D5288F1142C3FE8 /* HRDriftCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60E7A113EC1B8CA1F91E1D4C /* HRDriftCard.swift */; };
+5C941CF0DC98D2C1E2ACF72F /* UIHostingControllerBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E574F7AA0EE89AED453DD32 /* UIHostingControllerBridge.swift */; };
+A9488D990BBB259911CE5DD2 /* AnalyticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45ED1F03139D32C93CD59BF /* AnalyticsViewController.swift */; };
+DAF61A26146D3F31FC377A4C /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A15544DC5E7CE8A3A578A8E /* SettingsViewController.swift */; };
+7412B29347294739614FF3D7 /* HRZoneCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19DB3AD0DDD1DFB23B982EF8 /* HRZoneCalculatorTests.swift */; };
+5AF305535EC42E0829A3B2E9 /* TrainingLoadCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D65A441D58842DEA2BC372F /* TrainingLoadCalculatorTests.swift */; };
+AEFCFAD8EFC89849B3AA7EFE /* PersonalRecordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4458A885AB9099A435A240AE /* PersonalRecordTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +70,25 @@
 		F9907B06245894E600987667 /* PaceFinder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PaceFinder.entitlements; sourceTree = "<group>"; };
 		F9907B08245894E600987667 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		FEDEA0134A58BE9A54B6DBA4 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+06671AD11C80317FA3B1799D /* HRZone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRZone.swift; sourceTree = "<group>"; };
+BC8960A923B8C1E9392456DE /* MileageReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MileageReport.swift; sourceTree = "<group>"; };
+16419F828B9D2434E465E150 /* IntensityReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntensityReport.swift; sourceTree = "<group>"; };
+37F8A88B17FC695A07A0CA6E /* PersonalRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRecord.swift; sourceTree = "<group>"; };
+32E706298FADC1A606CB0FB3 /* HRZoneCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRZoneCalculator.swift; sourceTree = "<group>"; };
+386ECBE06B65A6A48B8148F6 /* TrainingLoadCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingLoadCalculator.swift; sourceTree = "<group>"; };
+01A9E71FDE8A774BCF36D58B /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+571AA8766C307511B2B9437A /* SummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryCard.swift; sourceTree = "<group>"; };
+562B0F79C37459EEF50BEA63 /* WeeklyMileageChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyMileageChart.swift; sourceTree = "<group>"; };
+D8F564135BE6128E18C26797 /* HRZoneStackedBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRZoneStackedBar.swift; sourceTree = "<group>"; };
+BACFB3D00B1F9163CE9FF57F /* PaceHREfficiencyChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaceHREfficiencyChart.swift; sourceTree = "<group>"; };
+60E7A113EC1B8CA1F91E1D4C /* HRDriftCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRDriftCard.swift; sourceTree = "<group>"; };
+9E574F7AA0EE89AED453DD32 /* UIHostingControllerBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHostingControllerBridge.swift; sourceTree = "<group>"; };
+B45ED1F03139D32C93CD59BF /* AnalyticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsViewController.swift; sourceTree = "<group>"; };
+4A15544DC5E7CE8A3A578A8E /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+19DB3AD0DDD1DFB23B982EF8 /* HRZoneCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRZoneCalculatorTests.swift; sourceTree = "<group>"; };
+5D65A441D58842DEA2BC372F /* TrainingLoadCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingLoadCalculatorTests.swift; sourceTree = "<group>"; };
+4458A885AB9099A435A240AE /* PersonalRecordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRecordTests.swift; sourceTree = "<group>"; };
+9BF0027312476F57A5E5A5AB /* PaceFinderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PaceFinderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +206,7 @@
 			children = (
 				DDC3EAD6D9404AADDCC92FF8 /* README.md */,
 				F9907AF12458947C00987667 /* PaceFinder */,
+				D7C524A55304317FAF42E12F /* PaceFinderTests */,
 				F9907AF02458947C00987667 /* Products */,
 				F9907B07245894E600987667 /* Frameworks */,
 				A84DF625EC23E377183A6CF9 /* Configuration */,
@@ -180,6 +218,7 @@
 			isa = PBXGroup;
 			children = (
 				F9907AEF2458947C00987667 /* PaceFinder.app */,
+				9BF0027312476F57A5E5A5AB /* PaceFinderTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -196,6 +235,8 @@
 				EB9525B82474C6B6001B5178 /* Interface */,
 				EB48C1C2246B2EBF00AE8FE3 /* Utilities */,
 				EB326B53246B258000FEFD08 /* Supporting Files */,
+				88BD64072BCFBE01A28DEFE3 /* Analytics */,
+				3838B3268E944239B02B61C4 /* Settings */,
 				F9907AFD2458947D00987667 /* LaunchScreen.storyboard */,
 			);
 			path = PaceFinder;
@@ -209,7 +250,88 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+29D4BEEF3EABEDCBBAA80DD4 /* Models */ = {
+isa = PBXGroup;
+children = (
+06671AD11C80317FA3B1799D /* HRZone.swift */,
+BC8960A923B8C1E9392456DE /* MileageReport.swift */,
+16419F828B9D2434E465E150 /* IntensityReport.swift */,
+37F8A88B17FC695A07A0CA6E /* PersonalRecord.swift */,
+);
+path = Models;
+sourceTree = "<group>";
+};
+451B4CF36123FDF77656AF72 /* Services */ = {
+isa = PBXGroup;
+children = (
+32E706298FADC1A606CB0FB3 /* HRZoneCalculator.swift */,
+386ECBE06B65A6A48B8148F6 /* TrainingLoadCalculator.swift */,
+01A9E71FDE8A774BCF36D58B /* AnalyticsService.swift */,
+);
+path = Services;
+sourceTree = "<group>";
+};
+A3D70628ECE66FA2FD5166E6 /* Views */ = {
+isa = PBXGroup;
+children = (
+571AA8766C307511B2B9437A /* SummaryCard.swift */,
+562B0F79C37459EEF50BEA63 /* WeeklyMileageChart.swift */,
+D8F564135BE6128E18C26797 /* HRZoneStackedBar.swift */,
+BACFB3D00B1F9163CE9FF57F /* PaceHREfficiencyChart.swift */,
+60E7A113EC1B8CA1F91E1D4C /* HRDriftCard.swift */,
+9E574F7AA0EE89AED453DD32 /* UIHostingControllerBridge.swift */,
+);
+path = Views;
+sourceTree = "<group>";
+};
+88BD64072BCFBE01A28DEFE3 /* Analytics */ = {
+isa = PBXGroup;
+children = (
+29D4BEEF3EABEDCBBAA80DD4 /* Models */,
+451B4CF36123FDF77656AF72 /* Services */,
+A3D70628ECE66FA2FD5166E6 /* Views */,
+B45ED1F03139D32C93CD59BF /* AnalyticsViewController.swift */,
+);
+path = Analytics;
+sourceTree = "<group>";
+};
+3838B3268E944239B02B61C4 /* Settings */ = {
+isa = PBXGroup;
+children = (
+4A15544DC5E7CE8A3A578A8E /* SettingsViewController.swift */,
+);
+path = Settings;
+sourceTree = "<group>";
+};
+D7C524A55304317FAF42E12F /* PaceFinderTests */ = {
+isa = PBXGroup;
+children = (
+19DB3AD0DDD1DFB23B982EF8 /* HRZoneCalculatorTests.swift */,
+5D65A441D58842DEA2BC372F /* TrainingLoadCalculatorTests.swift */,
+4458A885AB9099A435A240AE /* PersonalRecordTests.swift */,
+);
+path = PaceFinderTests;
+sourceTree = "<group>";
+};
 /* End PBXGroup section */
+
+/* Begin PBXContainerItemProxy section */
+EA1FCA65E27A984D654821D0 /* PBXContainerItemProxy */ = {
+isa = PBXContainerItemProxy;
+containerPortal = F9907AE72458947B00987667 /* Project object */;
+proxyType = 1;
+remoteGlobalIDString = F9907AEE2458947C00987667;
+remoteInfo = PaceFinder;
+};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+24933B83757750A9A491F0B2 /* PBXTargetDependency */ = {
+isa = PBXTargetDependency;
+target = F9907AEE2458947C00987667 /* PaceFinder */;
+targetProxy = EA1FCA65E27A984D654821D0 /* PBXContainerItemProxy */;
+};
+/* End PBXTargetDependency section */
 
 /* Begin PBXNativeTarget section */
 		F9907AEE2458947C00987667 /* PaceFinder */ = {
@@ -231,6 +353,24 @@
 			productReference = F9907AEF2458947C00987667 /* PaceFinder.app */;
 			productType = "com.apple.product-type.application";
 		};
+0E51F30DC6A7EE39C4B032CC /* PaceFinderTests */ = {
+isa = PBXNativeTarget;
+buildConfigurationList = 9132B63EF16287E4E9C349E0 /* Build configuration list for PBXNativeTarget "PaceFinderTests" */;
+buildPhases = (
+0837B8A3D261A7AB3AA2E4F9 /* Sources */,
+3602F8AC10F1BC81448AAA9E /* Frameworks */,
+66B2BC5B50C187FCCE177B4E /* Resources */,
+);
+buildRules = (
+);
+dependencies = (
+24933B83757750A9A491F0B2 /* PBXTargetDependency */,
+);
+name = PaceFinderTests;
+productName = PaceFinderTests;
+productReference = 9BF0027312476F57A5E5A5AB /* PaceFinderTests.xctest */;
+productType = "com.apple.product-type.bundle.unit-test";
+};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -243,6 +383,9 @@
 				TargetAttributes = {
 					F9907AEE2458947C00987667 = {
 						CreatedOnToolsVersion = 12.0;
+					};
+					0E51F30DC6A7EE39C4B032CC = {
+						TestTargetID = F9907AEE2458947C00987667;
 					};
 				};
 			};
@@ -262,6 +405,7 @@
 			projectRoot = "";
 			targets = (
 				F9907AEE2458947C00987667 /* PaceFinder */,
+				0E51F30DC6A7EE39C4B032CC /* PaceFinderTests */,
 			);
 		};
 /* End PBXProject section */
@@ -298,10 +442,51 @@
 				EB326B4E246B16AD00FEFD08 /* MainTabViewController.swift in Sources */,
 				BDF6A0412EC04F8200CCD995 /* RunningActivityTableCell.swift in Sources */,
 				EB9525C02474C9C2001B5178 /* WelcomeViewController.swift in Sources */,
+3EB13B9046685257BDD640FB /* HRZone.swift in Sources */,
+BD9C66B3AD3C2D6D1A3D1FA7 /* MileageReport.swift in Sources */,
+0822E8F36C031199972A8469 /* IntensityReport.swift in Sources */,
+9A1DE644815EF6D13B8FAA18 /* PersonalRecord.swift in Sources */,
+B38A088CA65ED389B74D0FB1 /* HRZoneCalculator.swift in Sources */,
+4737819096DA1DAC72FF5D2A /* TrainingLoadCalculator.swift in Sources */,
+28DF6EC4CE4A2BBDC241330B /* AnalyticsService.swift in Sources */,
+371ECD7B27CD813047229389 /* SummaryCard.swift in Sources */,
+6142EA7D17BE31111A2A73ED /* WeeklyMileageChart.swift in Sources */,
+43B7A3A69A8DCA03580D7B71 /* HRZoneStackedBar.swift in Sources */,
+1FF49B7889463E85759CDE66 /* PaceHREfficiencyChart.swift in Sources */,
+4B0DBB418D5288F1142C3FE8 /* HRDriftCard.swift in Sources */,
+5C941CF0DC98D2C1E2ACF72F /* UIHostingControllerBridge.swift in Sources */,
+A9488D990BBB259911CE5DD2 /* AnalyticsViewController.swift in Sources */,
+DAF61A26146D3F31FC377A4C /* SettingsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+0837B8A3D261A7AB3AA2E4F9 /* Sources */ = {
+isa = PBXSourcesBuildPhase;
+buildActionMask = 2147483647;
+files = (
+7412B29347294739614FF3D7 /* HRZoneCalculatorTests.swift in Sources */,
+5AF305535EC42E0829A3B2E9 /* TrainingLoadCalculatorTests.swift in Sources */,
+AEFCFAD8EFC89849B3AA7EFE /* PersonalRecordTests.swift in Sources */,
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+3602F8AC10F1BC81448AAA9E /* Frameworks */ = {
+isa = PBXFrameworksBuildPhase;
+buildActionMask = 2147483647;
+files = (
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+66B2BC5B50C187FCCE177B4E /* Resources */ = {
+isa = PBXResourcesBuildPhase;
+buildActionMask = 2147483647;
+files = (
+);
+runOnlyForDeploymentPostprocessing = 0;
+};
+
 
 /* Begin PBXVariantGroup section */
 		EB1B0CAC2486D7A700724782 /* Localizable.stringsdict */ = {
@@ -489,6 +674,42 @@
 			};
 			name = Release;
 		};
+508EBAD7B7C93ACFE059A0EE /* Debug */ = {
+isa = XCBuildConfiguration;
+buildSettings = {
+BUNDLE_LOADER = "$(TEST_HOST)";
+CODE_SIGN_STYLE = Automatic;
+CURRENT_PROJECT_VERSION = 1;
+DEVELOPMENT_TEAM = SX4U443X25;
+GENERATE_INFOPLIST_FILE = YES;
+IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+MARKETING_VERSION = 1.0;
+PRODUCT_BUNDLE_IDENTIFIER = com.pacefinder.PaceFinderTests;
+PRODUCT_NAME = "$(TARGET_NAME)";
+SWIFT_EMIT_LOC_STRINGS = NO;
+SWIFT_VERSION = 5.0;
+TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PaceFinder.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PaceFinder";
+};
+name = Debug;
+};
+7FCD9EB1A7CAD415366EB16F /* Release */ = {
+isa = XCBuildConfiguration;
+buildSettings = {
+BUNDLE_LOADER = "$(TEST_HOST)";
+CODE_SIGN_STYLE = Automatic;
+CURRENT_PROJECT_VERSION = 1;
+DEVELOPMENT_TEAM = SX4U443X25;
+GENERATE_INFOPLIST_FILE = YES;
+IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+MARKETING_VERSION = 1.0;
+PRODUCT_BUNDLE_IDENTIFIER = com.pacefinder.PaceFinderTests;
+PRODUCT_NAME = "$(TARGET_NAME)";
+SWIFT_EMIT_LOC_STRINGS = NO;
+SWIFT_VERSION = 5.0;
+TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PaceFinder.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PaceFinder";
+};
+name = Release;
+};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -510,6 +731,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+9132B63EF16287E4E9C349E0 /* Build configuration list for PBXNativeTarget "PaceFinderTests" */ = {
+isa = XCConfigurationList;
+buildConfigurations = (
+508EBAD7B7C93ACFE059A0EE /* Debug */,
+7FCD9EB1A7CAD415366EB16F /* Release */,
+);
+defaultConfigurationIsVisible = 0;
+defaultConfigurationName = Release;
+};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
