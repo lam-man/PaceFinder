@@ -86,7 +86,7 @@ class RunningActivityDetailViewController: UITableViewController {
             DetailSection(title: "Performance", rows: [
                 DetailRow(title: "Average Pace", value: formattedPace(activity.averagePaceMinutesPerKm)),
                 DetailRow(title: "Average Speed", value: formattedSpeed(activity.averageSpeed)),
-                DetailRow(title: "Average Heart Rate", value: formattedHeartRate(activity.averageHeartRate)),
+                DetailRow(title: "Average Heart Rate", value: formattedHeartRate(activity.avgHeartRate)),
                 DetailRow(title: "Maximum Heart Rate", value: formattedHeartRate(activity.maxHeartRate)),
                 DetailRow(title: "Average Power", value: formattedPower(activity.averagePower))
             ]),

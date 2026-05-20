@@ -15,13 +15,14 @@ struct RunningActivity {
     let startDate: Date
     let endDate: Date
     let duration: TimeInterval
-    
+
     // Core metrics
     var distance: Double? // meters
     var averageSpeed: Double? // m/s
-    var averageHeartRate: Double? // bpm
+    var avgHeartRate: Double? // bpm
     var maxHeartRate: Double? // bpm
-    
+    var heartRateSamples: [HeartRateSample]?
+
     // Advanced metrics (if available)
     var averagePower: Double? // watts
     var groundContactTime: Double? // milliseconds
@@ -29,7 +30,7 @@ struct RunningActivity {
     var verticalOscillation: Double? // meters
     var estimatedCadence: Double? // steps per minute, calculated from workout step samples
     var cadenceNote: String?
-    
+
     // Calculated properties
     var averagePaceMinutesPerKm: Double? {
         guard let speed = averageSpeed, speed > 0 else { return nil }

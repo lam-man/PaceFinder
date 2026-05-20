@@ -135,7 +135,7 @@ class RunningActivityTableViewCell: UITableViewCell {
         }
         
         // Heart Rate
-        if let heartRate = activity.averageHeartRate {
+        if let heartRate = activity.avgHeartRate {
             heartRateLabel.text = String(format: "♥ %.0f bpm", heartRate)
         } else {
             heartRateLabel.text = "♥ N/A"
