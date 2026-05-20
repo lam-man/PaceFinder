@@ -19,7 +19,7 @@
                                 <color key="tintColor" systemColor="labelColor"/>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" xcode11CocoaTouchSystemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <constraints>
                             <constraint firstItem="59c-uR-yKO" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="EwM-lS-2aU"/>
@@ -36,8 +36,5 @@
     </scenes>
     <resources>
         <image name="figure.run" catalog="system" width="89" height="128"/>
-        <systemColor name="labelColor">
-            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
     </resources>
 </document>

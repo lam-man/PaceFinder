@@ -14,6 +14,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private var isSplashAnimationComplete = false
     private var isMainTabReady = false
     private var hasCommittedRootSwap = false
+    private var minimumDurationWorkItem: DispatchWorkItem?
+    private var hardCapWorkItem: DispatchWorkItem?
     private weak var splashViewController: LaunchSplashViewController?
     private weak var mainTabViewController: MainTabViewController?
 
@@ -48,14 +50,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
         LaunchDiagnostics.log("window.makeKeyAndVisible() finished")
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
+        let minimumDurationWorkItem = DispatchWorkItem { [weak self] in
             self?.isMinimumDurationElapsed = true
             self?.attemptRootSwap(force: false)
         }
+        self.minimumDurationWorkItem = minimumDurationWorkItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: minimumDurationWorkItem)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
-            self?.attemptRootSwap(force: true)
+        let hardCapWorkItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            if !isMainTabReady {
+                LaunchDiagnostics.log("Launch splash hard cap fired before MainTab ready signal")
+            }
+            self.attemptRootSwap(force: true)
         }
+        self.hardCapWorkItem = hardCapWorkItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: hardCapWorkItem)
 
         DispatchQueue.main.async {
             LaunchDiagnostics.log("main queue was available after initial window setup")
@@ -72,6 +82,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         hasCommittedRootSwap = true
+        minimumDurationWorkItem?.cancel()
+        hardCapWorkItem?.cancel()
+        minimumDurationWorkItem = nil
+        hardCapWorkItem = nil
         splashViewController.detachEmbeddedMainViewController()
 
         UIView.transition(with: window, duration: 0.30, options: .transitionCrossDissolve) {
