@@ -1,6 +1,14 @@
 import Foundation
 import HealthKit
 
+// MARK: - Error type
+
+enum AnalyticsError: Error {
+    case healthKitUnavailable
+    case authorizationDenied
+    case fetchFailed
+}
+
 @available(iOS 16.0, *)
 class AnalyticsService {
 
@@ -16,76 +24,119 @@ class AnalyticsService {
         return 220 - effectiveAge
     }
 
-    func fetchMileageReport(completion: @escaping (MileageReport) -> Void) {
-        let endDate = Date()
-        let calendar = Calendar.current
-        guard let startDate = calendar.date(byAdding: .weekOfYear, value: -12, to: endDate) else {
-            completion(MileageReport(weeks: [], acwr: 0, streakDays: 0, rollingAvgMeters4Weeks: 0))
+    // MARK: - Fetch methods
+
+    func fetchMileageReport(completion: @escaping (Result<MileageReport, AnalyticsError>) -> Void) {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            completion(.failure(.healthKitUnavailable))
             return
         }
-
-        dataManager.fetchRunningActivities(from: startDate, to: endDate) { [weak self] activities in
+        HealthData.requestRunningDataAccess { [weak self] success in
             guard let self = self else { return }
-            let weeks = self.buildWeeklyMileage(from: activities, startDate: startDate, endDate: endDate)
-            let streak = self.loadCalc.streak(from: activities)
-            let rolling4 = self.loadCalc.rollingAverage(weeks: weeks, weekCount: 4)
-            let rollingDailyAvg = rolling4 / 7.0
-            let currentWeekMeters = weeks.last?.totalMeters ?? 0
-            let acwr = self.loadCalc.acwr(recentWeekMeters: currentWeekMeters, rollingAvgDailyMeters28: rollingDailyAvg)
-
-            completion(MileageReport(
-                weeks: weeks,
-                acwr: acwr,
-                streakDays: streak,
-                rollingAvgMeters4Weeks: rolling4
-            ))
-        }
-    }
-
-    func fetchIntensityReport(completion: @escaping (IntensityReport) -> Void) {
-        let endDate = Date()
-        guard let startDate = Calendar.current.date(byAdding: .day, value: -28, to: endDate) else {
-            completion(IntensityReport(zoneDurations: [], easyPercent: 0, hardPercent: 0))
-            return
-        }
-
-        dataManager.fetchRunningActivities(from: startDate, to: endDate) { [weak self] activities in
-            guard let self = self else { return }
-            let maxHR = self.userMaxHR
-            let samples: [(hr: Double, duration: TimeInterval)] = activities.compactMap { activity in
-                guard let hr = activity.averageHeartRate else { return nil }
-                return (hr: hr, duration: activity.duration)
+            guard success else {
+                completion(.failure(.authorizationDenied))
+                return
             }
-            let zoneDurations = self.zoneCalc.zoneDurations(from: samples, maxHR: maxHR)
-            let easyPct = self.zoneCalc.easyPercent(from: zoneDurations)
-            let total = zoneDurations.map(\.seconds).reduce(0, +)
-            let hard = total > 0 ? (1.0 - easyPct) : 0
-            completion(IntensityReport(zoneDurations: zoneDurations, easyPercent: easyPct, hardPercent: hard))
+            let endDate = Date()
+            let calendar = Calendar.current
+            guard let startDate = calendar.date(byAdding: .weekOfYear, value: -12, to: endDate) else {
+                completion(.success(MileageReport(weeks: [], acwr: 0, streakDays: 0, rollingAvgMeters4Weeks: 0)))
+                return
+            }
+
+            self.dataManager.fetchRunningActivities(from: startDate, to: endDate) { [weak self] activities in
+                guard let self = self else { return }
+                let weeks = self.buildWeeklyMileage(from: activities, startDate: startDate, endDate: endDate)
+                let streak = self.loadCalc.streak(from: activities)
+                let rolling4 = self.loadCalc.rollingAverage(weeks: weeks, weekCount: 4)
+
+                // Standard ACWR: acute = last 7 days total; chronic = last 28 days total
+                let acute7d = weeks.last?.totalMeters ?? 0
+                let chronic28d = weeks.suffix(4).map(\.totalMeters).reduce(0, +)
+                let acwr = self.loadCalc.acwr(acute7dMeters: acute7d, chronic28dMeters: chronic28d)
+
+                completion(.success(MileageReport(
+                    weeks: weeks,
+                    acwr: acwr,
+                    streakDays: streak,
+                    rollingAvgMeters4Weeks: rolling4
+                )))
+            }
         }
     }
 
-    func fetchPRReport(completion: @escaping (PRReport) -> Void) {
-        let endDate = Date()
-        guard let startDate = Calendar.current.date(byAdding: .day, value: -365, to: endDate) else {
-            completion(PRReport(records: [], longestRun: nil, longestDuration: nil))
+    func fetchIntensityReport(completion: @escaping (Result<IntensityReport, AnalyticsError>) -> Void) {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            completion(.failure(.healthKitUnavailable))
             return
         }
+        HealthData.requestRunningDataAccess { [weak self] success in
+            guard let self = self else { return }
+            guard success else {
+                completion(.failure(.authorizationDenied))
+                return
+            }
+            let endDate = Date()
+            guard let startDate = Calendar.current.date(byAdding: .day, value: -28, to: endDate) else {
+                completion(.success(IntensityReport(zoneDurations: [], easyPercent: 0, hardPercent: 0)))
+                return
+            }
 
-        dataManager.fetchRunningActivities(from: startDate, to: endDate) { activities in
-            let records = PRDistance.allCases.map { distance -> PersonalRecord in
-                let qualifying = activities.filter { ($0.distance ?? 0) >= distance.meters }
-                let best = qualifying.min { lhs, rhs in
-                    let lp = lhs.averagePaceMinutesPerKm ?? Double.greatestFiniteMagnitude
-                    let rp = rhs.averagePaceMinutesPerKm ?? Double.greatestFiniteMagnitude
-                    return lp < rp
+            self.dataManager.fetchRunningActivities(from: startDate, to: endDate) { [weak self] activities in
+                guard let self = self else { return }
+                let maxHR = self.userMaxHR
+                let samples: [(hr: Double, duration: TimeInterval)] = activities.compactMap { activity in
+                    guard let hr = activity.averageHeartRate else { return nil }
+                    return (hr: hr, duration: activity.duration)
                 }
-                return PersonalRecord(distance: distance, pace: best?.averagePaceMinutesPerKm, date: best?.startDate)
+                let zoneDurations = self.zoneCalc.zoneDurations(from: samples, maxHR: maxHR)
+                let easyPct = self.zoneCalc.easyPercent(from: zoneDurations)
+                let total = zoneDurations.map(\.seconds).reduce(0, +)
+                let hard = total > 0 ? (1.0 - easyPct) : 0
+                completion(.success(IntensityReport(zoneDurations: zoneDurations, easyPercent: easyPct, hardPercent: hard)))
+            }
+        }
+    }
+
+    func fetchPRReport(completion: @escaping (Result<PRReport, AnalyticsError>) -> Void) {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            completion(.failure(.healthKitUnavailable))
+            return
+        }
+        HealthData.requestRunningDataAccess { [weak self] success in
+            guard let self = self else { return }
+            guard success else {
+                completion(.failure(.authorizationDenied))
+                return
+            }
+            let endDate = Date()
+            guard let startDate = Calendar.current.date(byAdding: .day, value: -365, to: endDate) else {
+                completion(.success(PRReport(records: [], longestRun: nil, longestDuration: nil)))
+                return
             }
 
-            let longestRun = activities.max { ($0.distance ?? 0) < ($1.distance ?? 0) }
-            let longestDuration = activities.max { $0.duration < $1.duration }
+            self.dataManager.fetchRunningActivities(from: startDate, to: endDate) { activities in
+                let records = PRDistance.allCases.map { distance -> PersonalRecord in
+                    // Use ±5% tolerance so a 6 km easy run doesn't count as a 5 K PR.
+                    let lower = distance.meters * 0.95
+                    let upper = distance.meters * 1.05
+                    let qualifying = activities.filter {
+                        let d = $0.distance ?? 0
+                        return d >= lower && d <= upper
+                    }
+                    let best = qualifying.min { lhs, rhs in
+                        let lp = lhs.averagePaceMinutesPerKm ?? Double.greatestFiniteMagnitude
+                        let rp = rhs.averagePaceMinutesPerKm ?? Double.greatestFiniteMagnitude
+                        return lp < rp
+                    }
+                    return PersonalRecord(distance: distance, pace: best?.averagePaceMinutesPerKm, date: best?.startDate)
+                }
 
-            completion(PRReport(records: records, longestRun: longestRun, longestDuration: longestDuration))
+                let longestRun = activities.max { ($0.distance ?? 0) < ($1.distance ?? 0) }
+                let longestDuration = activities.max { $0.duration < $1.duration }
+
+                completion(.success(PRReport(records: records, longestRun: longestRun, longestDuration: longestDuration)))
+            }
         }
     }
 

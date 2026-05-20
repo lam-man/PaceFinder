@@ -2,15 +2,21 @@ import Foundation
 
 struct TrainingLoadCalculator {
 
-    func acwr(recentWeekMeters: Double, rollingAvgDailyMeters28: Double) -> Double {
-        guard rollingAvgDailyMeters28 > 0 else { return 0 }
-        let acuteLoad = recentWeekMeters / 7.0
-        return acuteLoad / rollingAvgDailyMeters28
+    /// Standard ACWR (Gabbett 2016).
+    /// Acute load = 7-day total / 7 (daily avg this week).
+    /// Chronic load = 28-day total / 28 (daily avg over 4 weeks).
+    /// Ratio ≈ 1.0 at steady-state; sweet spot 0.8–1.3.
+    func acwr(acute7dMeters: Double, chronic28dMeters: Double) -> Double {
+        guard chronic28dMeters > 0 else { return 0 }
+        // (acute/7) / (chronic/28) = acute * 4 / chronic
+        return (acute7dMeters * 4.0) / chronic28dMeters
     }
 
-    func violatesTenPercentRule(thisWeekMeters: Double, avgMeters4Weeks: Double) -> Bool {
-        guard avgMeters4Weeks > 0 else { return false }
-        return thisWeekMeters > avgMeters4Weeks * 1.10
+    /// Week-over-week 10% rule: flags a jump of more than 10% relative to the
+    /// previous completed week (not a rolling average).
+    func violatesTenPercentRule(thisWeekMeters: Double, lastWeekMeters: Double) -> Bool {
+        guard lastWeekMeters > 0 else { return false }
+        return (thisWeekMeters - lastWeekMeters) / lastWeekMeters > 0.10
     }
 
     func longestRunRatio(longestRunMeters: Double, weekTotalMeters: Double) -> Double {

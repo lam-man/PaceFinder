@@ -5,27 +5,50 @@ final class TrainingLoadCalculatorTests: XCTestCase {
 
     private let calc = TrainingLoadCalculator()
 
-    func testACWR() {
-        let result = calc.acwr(recentWeekMeters: 70_000, rollingAvgDailyMeters28: 8_000)
-        XCTAssertEqual(result, 10_000.0 / 8_000.0, accuracy: 0.001)
+    // MARK: - ACWR
+
+    /// At steady-state training load ACWR must equal 1.0 (Gabbett 2016).
+    func testACWREquilibrium() {
+        let weeklyLoad = 60_000.0
+        let result = calc.acwr(acute7dMeters: weeklyLoad, chronic28dMeters: weeklyLoad * 4)
+        XCTAssertEqual(result, 1.0, accuracy: 0.001)
+    }
+
+    /// Doubling acute load while chronic stays flat → ACWR ≈ 2.0.
+    func testACWROvertraining() {
+        let result = calc.acwr(acute7dMeters: 80_000, chronic28dMeters: 4 * 40_000)
+        XCTAssertEqual(result, 2.0, accuracy: 0.001)
     }
 
     func testACWRZeroChronic() {
-        XCTAssertEqual(calc.acwr(recentWeekMeters: 50_000, rollingAvgDailyMeters28: 0), 0)
+        XCTAssertEqual(calc.acwr(acute7dMeters: 50_000, chronic28dMeters: 0), 0)
     }
 
+    // MARK: - 10% rule (week-over-week)
+
     func testTenPercentRuleViolated() {
-        XCTAssertTrue(calc.violatesTenPercentRule(thisWeekMeters: 60_000, avgMeters4Weeks: 50_000))
+        // 60 km vs 50 km last week = +20 % → violated
+        XCTAssertTrue(calc.violatesTenPercentRule(thisWeekMeters: 60_000, lastWeekMeters: 50_000))
     }
 
     func testTenPercentRuleNotViolated() {
-        XCTAssertFalse(calc.violatesTenPercentRule(thisWeekMeters: 54_000, avgMeters4Weeks: 50_000))
+        // 54 km vs 50 km last week = +8 % → ok
+        XCTAssertFalse(calc.violatesTenPercentRule(thisWeekMeters: 54_000, lastWeekMeters: 50_000))
     }
+
+    func testTenPercentRuleZeroLastWeek() {
+        // First week of training: no last-week baseline → not violated
+        XCTAssertFalse(calc.violatesTenPercentRule(thisWeekMeters: 10_000, lastWeekMeters: 0))
+    }
+
+    // MARK: - Longest run ratio
 
     func testLongestRunRatio() {
         let ratio = calc.longestRunRatio(longestRunMeters: 15_000, weekTotalMeters: 50_000)
         XCTAssertEqual(ratio, 0.30, accuracy: 0.001)
     }
+
+    // MARK: - Streak
 
     func testStreakEmpty() {
         XCTAssertEqual(calc.streak(from: []), 0)
@@ -43,6 +66,8 @@ final class TrainingLoadCalculatorTests: XCTestCase {
         }
         XCTAssertEqual(calc.streak(from: activities), 3)
     }
+
+    // MARK: - Rolling average
 
     func testRollingAverage() {
         let calendar = Calendar.current
