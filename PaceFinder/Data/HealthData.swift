@@ -8,30 +8,34 @@ A collection of HealthKit properties, functions, and utilities.
 import Foundation
 import HealthKit
 
+protocol HeartRateDataProviding {
+    func fetchHeartRateSamples(from startDate: Date, to endDate: Date, completion: @escaping ([HeartRateSample]?) -> Void)
+}
+
 class HealthData {
-    
+
     static let healthStore: HKHealthStore = HKHealthStore()
-    
+
     // MARK: - Data Types
-    
+
     static var readDataTypes: [HKSampleType] {
         return allHealthDataTypes
     }
-    
+
     static var shareDataTypes: [HKSampleType] {
         return allHealthDataTypes
     }
-    
+
 //    private static var allHealthDataTypes: [HKSampleType] {
 //        let typeIdentifiers: [String] = [
 //            HKQuantityTypeIdentifier.stepCount.rawValue,
 //            HKQuantityTypeIdentifier.distanceWalkingRunning.rawValue,
 //            HKQuantityTypeIdentifier.sixMinuteWalkTestDistance.rawValue
 //        ]
-//        
+//
 //        return typeIdentifiers.compactMap { getSampleType(for: $0) }
 //    }
-    
+
     // Add this section after the existing allHealthDataTypes property
 
     // MARK: - Running Data Types
@@ -43,7 +47,7 @@ class HealthData {
             HKQuantityTypeIdentifier.heartRate.rawValue,
             HKQuantityTypeIdentifier.stepCount.rawValue
         ]
-        
+
         // iOS 16.0+ running metrics
         if #available(iOS 16.0, *) {
             runningTypeIdentifiers.append(contentsOf: [
@@ -54,7 +58,7 @@ class HealthData {
                 HKQuantityTypeIdentifier.runningVerticalOscillation.rawValue
             ])
         }
-        
+
         return runningTypeIdentifiers.compactMap { getSampleType(for: $0) }
     }
 
@@ -69,9 +73,9 @@ class HealthData {
             HKQuantityTypeIdentifier.distanceWalkingRunning.rawValue,
             HKQuantityTypeIdentifier.sixMinuteWalkTestDistance.rawValue
         ]
-        
+
         let mobilityTypes = mobilityTypeIdentifiers.compactMap { getSampleType(for: $0) }
-        
+
         return mobilityTypes + runningDataTypes + workoutDataTypes
     }
 
@@ -81,7 +85,7 @@ class HealthData {
     class func requestRunningDataAccess(completion: @escaping (_ success: Bool) -> Void) {
         let readTypes = Set(runningDataTypes + workoutDataTypes)
         let shareTypes = Set(runningDataTypes + workoutDataTypes)
-        
+
         requestHealthDataAccessIfNeeded(toShare: shareTypes, read: readTypes, completion: completion)
     }
 
@@ -102,7 +106,7 @@ class HealthData {
             HKQuantityTypeIdentifier.heartRate.rawValue,
             HKQuantityTypeIdentifier.stepCount.rawValue
         ]
-        
+
         if #available(iOS 16.0, *) {
             types.append(contentsOf: [
                 HKQuantityTypeIdentifier.runningSpeed.rawValue,
@@ -112,25 +116,25 @@ class HealthData {
                 HKQuantityTypeIdentifier.runningVerticalOscillation.rawValue
             ])
         }
-        
+
         return types
     }
-    
+
     // MARK: - Authorization
-    
+
     /// Request health data from HealthKit if needed, using the data types within `HealthData.allHealthDataTypes`
     class func requestHealthDataAccessIfNeeded(dataTypes: [String]? = nil, completion: @escaping (_ success: Bool) -> Void) {
         var readDataTypes = Set(allHealthDataTypes)
         var shareDataTypes = Set(allHealthDataTypes)
-        
+
         if let dataTypeIdentifiers = dataTypes {
             readDataTypes = Set(dataTypeIdentifiers.compactMap { getSampleType(for: $0) })
             shareDataTypes = readDataTypes
         }
-        
+
         requestHealthDataAccessIfNeeded(toShare: shareDataTypes, read: readDataTypes, completion: completion)
     }
-    
+
     /// Request health data from HealthKit if needed.
     class func requestHealthDataAccessIfNeeded(toShare shareTypes: Set<HKSampleType>?,
                                                read readTypes: Set<HKObjectType>?,
@@ -138,31 +142,89 @@ class HealthData {
         if !HKHealthStore.isHealthDataAvailable() {
             fatalError("Health data is not available!")
         }
-        
+
         print("Requesting HealthKit authorization...")
         healthStore.requestAuthorization(toShare: shareTypes, read: readTypes) { (success, error) in
             if let error = error {
                 print("requestAuthorization error:", error.localizedDescription)
             }
-            
+
             if success {
                 print("HealthKit authorization request was successful!")
             } else {
                 print("HealthKit authorization was not successful.")
             }
-            
+
             completion(success)
         }
     }
-    
+
     // MARK: - HKHealthStore
-    
+
     class func saveHealthData(_ data: [HKObject], completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
         healthStore.save(data, withCompletion: completion)
     }
-    
+
+    class func fetchHeartRateSamples(from startDate: Date,
+                                     to endDate: Date,
+                                     completion: @escaping ([HeartRateSample]?) -> Void) {
+        guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
+            completion(nil)
+            return
+        }
+
+        let unit = HKUnit.count().unitDivided(by: .minute())
+        let predicate = HKQuery.predicateForSamples(
+            withStart: startDate,
+            end: endDate,
+            options: [.strictStartDate, .strictEndDate]
+        )
+        let sortDescriptors = [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]
+
+        let query = HKSampleQuery(
+            sampleType: heartRateType,
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: sortDescriptors
+        ) { _, samples, error in
+            guard error == nil, let quantitySamples = samples as? [HKQuantitySample], !quantitySamples.isEmpty else {
+                completion(nil)
+                return
+            }
+
+            let mappedSamples = quantitySamples.map {
+                HeartRateSample(date: $0.startDate, bpm: $0.quantity.doubleValue(for: unit))
+            }
+            completion(normalizeHeartRateSamples(mappedSamples, between: startDate, and: endDate))
+        }
+
+        healthStore.execute(query)
+    }
+
+    class func averageHeartRate(from samples: [HeartRateSample]?) -> Double? {
+        guard let samples, !samples.isEmpty else { return nil }
+        let total = samples.reduce(0.0) { $0 + $1.bpm }
+        return total / Double(samples.count)
+    }
+
+    class func normalizeHeartRateSamples(_ samples: [HeartRateSample],
+                                         between startDate: Date,
+                                         and endDate: Date) -> [HeartRateSample]? {
+        let filteredAndSortedSamples = samples
+            .filter { $0.date >= startDate && $0.date <= endDate }
+            .sorted { $0.date < $1.date }
+
+        return filteredAndSortedSamples.isEmpty ? nil : filteredAndSortedSamples
+    }
+
+    func fetchHeartRateSamples(from startDate: Date,
+                               to endDate: Date,
+                               completion: @escaping ([HeartRateSample]?) -> Void) {
+        Self.fetchHeartRateSamples(from: startDate, to: endDate, completion: completion)
+    }
+
     // MARK: - HKStatisticsCollectionQuery
-    
+
     class func fetchStatistics(with identifier: HKQuantityTypeIdentifier,
                                predicate: NSPredicate? = nil,
                                options: HKStatisticsOptions,
@@ -173,28 +235,28 @@ class HealthData {
         guard let quantityType = HKObjectType.quantityType(forIdentifier: identifier) else {
             fatalError("*** Unable to create a step count type ***")
         }
-        
+
         let anchorDate = createAnchorDate()
-        
+
         // Create the query
         let query = HKStatisticsCollectionQuery(quantityType: quantityType,
                                                 quantitySamplePredicate: predicate,
                                                 options: options,
                                                 anchorDate: anchorDate,
                                                 intervalComponents: interval)
-        
+
         // Set the results handler
         query.initialResultsHandler = { query, results, error in
             if let statsCollection = results {
                 completion(statsCollection)
             }
         }
-         
+
         healthStore.execute(query)
     }
-    
+
     // MARK: - Helper Functions
-    
+
     class func updateAnchor(_ newAnchor: HKQueryAnchor?, from query: HKAnchoredObjectQuery) {
         if let sampleType = query.objectType as? HKSampleType {
             setAnchor(newAnchor, for: sampleType)
@@ -206,25 +268,25 @@ class HealthData {
             }
         }
     }
-    
+
     private static let userDefaults = UserDefaults.standard
-    
+
     private static let anchorKeyPrefix = "Anchor_"
-    
+
     private class func anchorKey(for type: HKSampleType) -> String {
         return anchorKeyPrefix + type.identifier
     }
-    
+
     /// Returns the saved anchor used in a long-running anchored object query for a particular sample type.
     /// Returns nil if a query has never been run.
     class func getAnchor(for type: HKSampleType) -> HKQueryAnchor? {
         if let anchorData = userDefaults.object(forKey: anchorKey(for: type)) as? Data {
             return try? NSKeyedUnarchiver.unarchivedObject(ofClass: HKQueryAnchor.self, from: anchorData)
         }
-        
+
         return nil
     }
-    
+
     /// Update the saved anchor used in a long-running anchored object query for a particular sample type.
     private class func setAnchor(_ queryAnchor: HKQueryAnchor?, for type: HKSampleType) {
         if let queryAnchor = queryAnchor,
@@ -233,3 +295,5 @@ class HealthData {
         }
     }
 }
+
+extension HealthData: HeartRateDataProviding {}

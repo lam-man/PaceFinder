@@ -11,6 +11,7 @@
 		BDF6A03D2EC043B800CCD995 /* RunningDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A03C2EC043AE00CCD995 /* RunningDataManager.swift */; };
 		BDF6A03F2EC04F5400CCD995 /* RunningActivityTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A03E2EC04F3400CCD995 /* RunningActivityTableViewController.swift */; };
 		BDF6A0432EC1000000CCD995 /* RunningActivityDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A0422EC1000000CCD995 /* RunningActivityDetailViewController.swift */; };
+		C2A5D1A12F0B100100A1B2C3 /* HeartRateSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A5D1A02F0B100100A1B2C3 /* HeartRateSample.swift */; };
 		BDF6A0412EC04F8200CCD995 /* RunningActivityTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF6A0402EC04F7500CCD995 /* RunningActivityTableCell.swift */; };
 		EB1B0CAA2486D7A700724782 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = EB1B0CAC2486D7A700724782 /* Localizable.stringsdict */; };
 		EB305B7E2485E4B8007A7694 /* HealthKitSupport+Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB305B7D2485E4B8007A7694 /* HealthKitSupport+Strings.swift */; };
@@ -33,6 +34,7 @@
 		BDF6A03C2EC043AE00CCD995 /* RunningDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningDataManager.swift; sourceTree = "<group>"; };
 		BDF6A03E2EC04F3400CCD995 /* RunningActivityTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivityTableViewController.swift; sourceTree = "<group>"; };
 		BDF6A0422EC1000000CCD995 /* RunningActivityDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivityDetailViewController.swift; sourceTree = "<group>"; };
+		C2A5D1A02F0B100100A1B2C3 /* HeartRateSample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRateSample.swift; sourceTree = "<group>"; };
 		BDF6A0402EC04F7500CCD995 /* RunningActivityTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningActivityTableCell.swift; sourceTree = "<group>"; };
 		DDC3EAD6D9404AADDCC92FF8 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		EB1B0CAB2486D7A700724782 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 		EB326B51246B257000FEFD08 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C2A5D1A02F0B100100A1B2C3 /* HeartRateSample.swift */,
 				BDF6A03A2EC0398F00CCD995 /* RunningActivity.swift */,
 			);
 			path = Models;
@@ -285,6 +288,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BDF6A03B2EC0399600CCD995 /* RunningActivity.swift in Sources */,
+				C2A5D1A12F0B100100A1B2C3 /* HeartRateSample.swift in Sources */,
 				EB9525BE2474C9A2001B5178 /* SplashScreenViewController.swift in Sources */,
 				BDF6A03F2EC04F5400CCD995 /* RunningActivityTableViewController.swift in Sources */,
 				BDF6A0432EC1000000CCD995 /* RunningActivityDetailViewController.swift in Sources */,
