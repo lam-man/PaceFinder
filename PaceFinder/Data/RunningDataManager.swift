@@ -197,6 +197,29 @@ class RunningDataManager {
             self?.fetchMetricsForWorkouts(workouts, completion: completion)
         }
     }
+
+    func fetchEarliestRunningWorkoutDate(completion: @escaping (Date?) -> Void) {
+        let workoutType = HKWorkoutType.workoutType()
+        let predicate = HKQuery.predicateForWorkouts(with: .running)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
+
+        let query = HKSampleQuery(
+            sampleType: workoutType,
+            predicate: predicate,
+            limit: 1,
+            sortDescriptors: [sortDescriptor]
+        ) { _, samples, error in
+            guard error == nil,
+                  let workout = (samples as? [HKWorkout])?.first else {
+                completion(nil)
+                return
+            }
+
+            completion(workout.startDate)
+        }
+
+        healthStore.execute(query)
+    }
     
     // MARK: - Private Methods
     
