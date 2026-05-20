@@ -134,7 +134,7 @@
 //        case .heartRate:
 //            guard let unit = preferredUnit(for: typeIdentifier) else { return }
 //            let heartRates = samples.map { $0.quantity.doubleValue(for: unit) }
-//            activity.averageHeartRate = heartRates.reduce(0, +) / Double(heartRates.count)
+//            activity.avgHeartRate = heartRates.reduce(0, +) / Double(heartRates.count)
 //            activity.maxHeartRate = heartRates.max()
 //
 //        default:
@@ -177,8 +177,15 @@ import HealthKit
 @available(iOS 16.0, *)
 class RunningDataManager {
 
+    private enum HeartRateCacheEntry {
+        case samples([HeartRateSample])
+        case unavailable
+    }
+
     private let healthStore = HealthData.healthStore
     private let heartRateDataProvider: HeartRateDataProviding
+    private var heartRateCache: [UUID: HeartRateCacheEntry] = [:]
+    private let heartRateCacheQueue = DispatchQueue(label: "RunningDataManager.heartRateCacheQueue")
 
     init(heartRateDataProvider: HeartRateDataProviding = HealthData()) {
         self.heartRateDataProvider = heartRateDataProvider
@@ -233,13 +240,16 @@ class RunningDataManager {
     private func fetchMetricsForWorkouts(_ workouts: [HKWorkout], completion: @escaping ([RunningActivity]) -> Void) {
         let group = DispatchGroup()
         var runningActivities: [RunningActivity] = []
+        let activitiesMutationQueue = DispatchQueue(label: "RunningDataManager.activitiesMutation")
 
         for workout in workouts {
             group.enter()
 
             fetchMetricsForSingleWorkout(workout) { activity in
                 if let activity = activity {
-                    runningActivities.append(activity)
+                    activitiesMutationQueue.sync {
+                        runningActivities.append(activity)
+                    }
                 }
                 group.leave()
             }
@@ -247,13 +257,17 @@ class RunningDataManager {
 
         group.notify(queue: .main) {
             // Sort by start date (most recent first)
-            let sortedActivities = runningActivities.sorted { $0.startDate > $1.startDate }
+            let sortedActivities = activitiesMutationQueue.sync {
+                runningActivities.sorted { $0.startDate > $1.startDate }
+            }
             completion(sortedActivities)
         }
     }
 
     private func fetchMetricsForSingleWorkout(_ workout: HKWorkout, completion: @escaping (RunningActivity?) -> Void) {
-        // FIXED: Use predicate for samples during workout time range
+        let activityMutationQueue = DispatchQueue(label: "RunningDataManager.activityMutation.\(workout.uuid)")
+        let isCompletedWorkout = workout.endDate < Date()
+
         let workoutPredicate = HKQuery.predicateForSamples(
             withStart: workout.startDate,
             end: workout.endDate,
@@ -293,11 +307,12 @@ class RunningDataManager {
         let allMetrics = metricsToQuery + advancedMetrics
 
         group.enter()
-        heartRateDataProvider.fetchHeartRateSamples(from: workout.startDate, to: workout.endDate) { samples in
-            activity.heartRateSamples = samples
-            activity.avgHeartRate = HealthData.averageHeartRate(from: samples)
-            activity.maxHeartRate = samples?.map(\.bpm).max()
-            group.leave()
+        fetchHeartRateSamples(for: workout, isCompletedWorkout: isCompletedWorkout) { result in
+            defer { group.leave() }
+
+            activityMutationQueue.sync {
+                Self.applyHeartRateResult(result, to: &activity, workoutID: workout.uuid)
+            }
         }
 
         // Fetch each metric type
@@ -320,28 +335,88 @@ class RunningDataManager {
                     return
                 }
 
-                // Process the samples
-                self.processMetricSamples(
-                    quantitySamples,
-                    for: identifier,
-                    unit: unit,
-                    into: &activity,
-                    totalSteps: &totalSteps
-                )
+                activityMutationQueue.sync {
+                    // Process the samples
+                    self.processMetricSamples(
+                        quantitySamples,
+                        for: identifier,
+                        unit: unit,
+                        into: &activity,
+                        totalSteps: &totalSteps
+                    )
+                }
             }
 
             healthStore.execute(query)
         }
 
         group.notify(queue: .main) {
-            if let steps = totalSteps, steps > 0, activity.duration > 0 {
-                activity.estimatedCadence = (steps / activity.duration) * 60.0
-                activity.cadenceNote = "Estimated from step count and duration."
-            } else {
-                activity.cadenceNote = "Not enough step-count data to calculate cadence."
+            activityMutationQueue.sync {
+                if let steps = totalSteps, steps > 0, activity.duration > 0 {
+                    activity.estimatedCadence = (steps / activity.duration) * 60.0
+                    activity.cadenceNote = "Estimated from step count and duration."
+                } else {
+                    activity.cadenceNote = "Not enough step-count data to calculate cadence."
+                }
             }
 
             completion(activity)
+        }
+    }
+
+    private func fetchHeartRateSamples(for workout: HKWorkout,
+                                       isCompletedWorkout: Bool,
+                                       completion: @escaping (Result<[HeartRateSample], HeartRateDataError>) -> Void) {
+        if isCompletedWorkout, let cachedEntry = cachedHeartRateEntry(for: workout.uuid) {
+            switch cachedEntry {
+            case .samples(let samples):
+                completion(.success(samples))
+            case .unavailable:
+                completion(.success([]))
+            }
+            return
+        }
+
+        heartRateDataProvider.fetchHeartRateSamples(for: workout) { result in
+            if isCompletedWorkout {
+                switch result {
+                case .success(let samples):
+                    self.setCachedHeartRateEntry(samples.isEmpty ? .unavailable : .samples(samples), for: workout.uuid)
+                case .failure:
+                    break
+                }
+            }
+            completion(result)
+        }
+    }
+
+    private func cachedHeartRateEntry(for workoutID: UUID) -> HeartRateCacheEntry? {
+        heartRateCacheQueue.sync {
+            heartRateCache[workoutID]
+        }
+    }
+
+    private func setCachedHeartRateEntry(_ entry: HeartRateCacheEntry, for workoutID: UUID) {
+        heartRateCacheQueue.sync {
+            heartRateCache[workoutID] = entry
+        }
+    }
+
+    static func applyHeartRateResult(_ result: Result<[HeartRateSample], HeartRateDataError>,
+                                     to activity: inout RunningActivity,
+                                     workoutID: UUID) {
+        switch result {
+        case .success(let samples):
+            activity.heartRateSamples = samples.isEmpty ? nil : samples
+            activity.avgHeartRate = HealthData.averageHeartRate(from: samples)
+            activity.maxHeartRate = samples.map(\.bpm).max()
+        case .failure(let error):
+            if case .queryFailed(let underlyingError) = error {
+                print("Unable to load heart rate samples for workout \(workoutID): \(underlyingError.localizedDescription)")
+            }
+            activity.heartRateSamples = nil
+            activity.avgHeartRate = nil
+            activity.maxHeartRate = nil
         }
     }
 
@@ -359,10 +434,6 @@ class RunningDataManager {
         let average = values.reduce(0, +) / Double(values.count)
 
         switch identifier {
-        case .heartRate:
-            activity.averageHeartRate = average
-            activity.maxHeartRate = values.max()
-
         case .stepCount:
             // Sum steps for cadence calculation
             totalSteps = values.reduce(0, +)

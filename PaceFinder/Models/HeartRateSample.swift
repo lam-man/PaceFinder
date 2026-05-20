@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct HeartRateSample {
+struct HeartRateSample: Codable, Hashable {
     let date: Date
     let bpm: Double
 }

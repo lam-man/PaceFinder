@@ -8,8 +8,15 @@ A collection of HealthKit properties, functions, and utilities.
 import Foundation
 import HealthKit
 
+enum HeartRateDataError: Error {
+    case notAuthorized
+    case queryFailed(Error)
+    case unexpectedSampleType
+}
+
 protocol HeartRateDataProviding {
-    func fetchHeartRateSamples(from startDate: Date, to endDate: Date, completion: @escaping ([HeartRateSample]?) -> Void)
+    func fetchHeartRateSamples(for workout: HKWorkout,
+                               completion: @escaping (Result<[HeartRateSample], HeartRateDataError>) -> Void)
 }
 
 class HealthData {
@@ -165,20 +172,20 @@ class HealthData {
         healthStore.save(data, withCompletion: completion)
     }
 
-    class func fetchHeartRateSamples(from startDate: Date,
-                                     to endDate: Date,
-                                     completion: @escaping ([HeartRateSample]?) -> Void) {
+    class func fetchHeartRateSamples(for workout: HKWorkout,
+                                     completion: @escaping (Result<[HeartRateSample], HeartRateDataError>) -> Void) {
         guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
-            completion(nil)
+            preconditionFailure("Unable to create heart rate quantity type.")
+        }
+
+        guard healthStore.authorizationStatus(for: heartRateType) == .sharingAuthorized else {
+            completion(.failure(.notAuthorized))
             return
         }
 
+        // Keep BPM explicitly for consistency in downstream analytics.
         let unit = HKUnit.count().unitDivided(by: .minute())
-        let predicate = HKQuery.predicateForSamples(
-            withStart: startDate,
-            end: endDate,
-            options: [.strictStartDate, .strictEndDate]
-        )
+        let predicate = HKQuery.predicateForObjects(from: workout)
         let sortDescriptors = [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]
 
         let query = HKSampleQuery(
@@ -187,40 +194,35 @@ class HealthData {
             limit: HKObjectQueryNoLimit,
             sortDescriptors: sortDescriptors
         ) { _, samples, error in
-            guard error == nil, let quantitySamples = samples as? [HKQuantitySample], !quantitySamples.isEmpty else {
-                completion(nil)
+            if let error {
+                print("Heart rate query failed for workout \(workout.uuid): \(error.localizedDescription)")
+                completion(.failure(.queryFailed(error)))
+                return
+            }
+
+            guard let quantitySamples = samples as? [HKQuantitySample] else {
+                completion(.failure(.unexpectedSampleType))
                 return
             }
 
             let mappedSamples = quantitySamples.map {
                 HeartRateSample(date: $0.startDate, bpm: $0.quantity.doubleValue(for: unit))
             }
-            completion(normalizeHeartRateSamples(mappedSamples, between: startDate, and: endDate))
+            completion(.success(mappedSamples))
         }
 
         healthStore.execute(query)
     }
 
-    class func averageHeartRate(from samples: [HeartRateSample]?) -> Double? {
-        guard let samples, !samples.isEmpty else { return nil }
+    class func averageHeartRate(from samples: [HeartRateSample]) -> Double? {
+        guard !samples.isEmpty else { return nil }
         let total = samples.reduce(0.0) { $0 + $1.bpm }
         return total / Double(samples.count)
     }
 
-    class func normalizeHeartRateSamples(_ samples: [HeartRateSample],
-                                         between startDate: Date,
-                                         and endDate: Date) -> [HeartRateSample]? {
-        let filteredAndSortedSamples = samples
-            .filter { $0.date >= startDate && $0.date <= endDate }
-            .sorted { $0.date < $1.date }
-
-        return filteredAndSortedSamples.isEmpty ? nil : filteredAndSortedSamples
-    }
-
-    func fetchHeartRateSamples(from startDate: Date,
-                               to endDate: Date,
-                               completion: @escaping ([HeartRateSample]?) -> Void) {
-        Self.fetchHeartRateSamples(from: startDate, to: endDate, completion: completion)
+    func fetchHeartRateSamples(for workout: HKWorkout,
+                               completion: @escaping (Result<[HeartRateSample], HeartRateDataError>) -> Void) {
+        Self.fetchHeartRateSamples(for: workout, completion: completion)
     }
 
     // MARK: - HKStatisticsCollectionQuery

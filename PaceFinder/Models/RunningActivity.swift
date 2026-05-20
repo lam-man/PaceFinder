@@ -36,11 +36,6 @@ struct RunningActivity {
         guard let speed = averageSpeed, speed > 0 else { return nil }
         return (1000.0 / speed) / 60.0 // Convert m/s to min/km
     }
-
-    var averageHeartRate: Double? {
-        get { avgHeartRate }
-        set { avgHeartRate = newValue }
-    }
 }
 
 /// A representation of running metrics collected during a workout
