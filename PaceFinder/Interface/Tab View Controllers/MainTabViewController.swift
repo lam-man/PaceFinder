@@ -9,6 +9,8 @@ import UIKit
 
 /// The tab view controller for the app.
 class MainTabViewController: UITabBarController {
+
+    var onFirstAppear: (() -> Void)?
     
     // MARK: - Initializers
     
@@ -30,6 +32,8 @@ class MainTabViewController: UITabBarController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         LaunchDiagnostics.log("MainTabViewController viewDidAppear")
+        onFirstAppear?()
+        onFirstAppear = nil
     }
     
     // MARK: - Setup

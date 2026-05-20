@@ -20,6 +20,7 @@
 		EB9525BE2474C9A2001B5178 /* SplashScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525BD2474C9A2001B5178 /* SplashScreenViewController.swift */; };
 		EB9525C02474C9C2001B5178 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525BF2474C9C2001B5178 /* WelcomeViewController.swift */; };
 		EB9525C22475BD41001B5178 /* HealthKitSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB9525C12475BD41001B5178 /* HealthKitSupport.swift */; };
+		C0A1B2C32F0A100100AAA001 /* LaunchSplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A1B2C42F0A100100AAA001 /* LaunchSplashViewController.swift */; };
 		F9907AF32458947C00987667 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9907AF22458947C00987667 /* AppDelegate.swift */; };
 		F9907AF52458947C00987667 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9907AF42458947C00987667 /* SceneDelegate.swift */; };
 		F9907AFC2458947D00987667 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F9907AFB2458947D00987667 /* Assets.xcassets */; };
@@ -61,6 +62,7 @@ AEFCFAD8EFC89849B3AA7EFE /* PersonalRecordTests.swift in Sources */ = {isa = PBX
 		EB9525BD2474C9A2001B5178 /* SplashScreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenViewController.swift; sourceTree = "<group>"; };
 		EB9525BF2474C9C2001B5178 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		EB9525C12475BD41001B5178 /* HealthKitSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitSupport.swift; sourceTree = "<group>"; };
+		C0A1B2C42F0A100100AAA001 /* LaunchSplashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSplashViewController.swift; sourceTree = "<group>"; };
 		F9907AEF2458947C00987667 /* PaceFinder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PaceFinder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9907AF22458947C00987667 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F9907AF42458947C00987667 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -130,6 +132,7 @@ B45ED1F03139D32C93CD59BF /* AnalyticsViewController.swift */ = {isa = PBXFileRef
 		EB1B0CA62486CEB000724782 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				C0A1B2C42F0A100100AAA001 /* LaunchSplashViewController.swift */,
 				EB9525BD2474C9A2001B5178 /* SplashScreenViewController.swift */,
 			);
 			path = "View Controllers";
@@ -430,6 +433,7 @@ productType = "com.apple.product-type.bundle.unit-test";
 			files = (
 				BDF6A03B2EC0399600CCD995 /* RunningActivity.swift in Sources */,
 				EB9525BE2474C9A2001B5178 /* SplashScreenViewController.swift in Sources */,
+				C0A1B2C32F0A100100AAA001 /* LaunchSplashViewController.swift in Sources */,
 				BDF6A03F2EC04F5400CCD995 /* RunningActivityTableViewController.swift in Sources */,
 				BDF6A0432EC1000000CCD995 /* RunningActivityDetailViewController.swift in Sources */,
 				EB305B7E2485E4B8007A7694 /* HealthKitSupport+Strings.swift in Sources */,

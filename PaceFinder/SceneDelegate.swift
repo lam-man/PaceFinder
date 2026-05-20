@@ -10,6 +10,14 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    private var isMinimumDurationElapsed = false
+    private var isSplashAnimationComplete = false
+    private var isMainTabReady = false
+    private var hasCommittedRootSwap = false
+    private var minimumDurationWorkItem: DispatchWorkItem?
+    private var hardCapWorkItem: DispatchWorkItem?
+    private weak var splashViewController: LaunchSplashViewController?
+    private weak var mainTabViewController: MainTabViewController?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         LaunchDiagnostics.log("scene(_:willConnectTo:) started")
@@ -20,17 +28,70 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
         let window = UIWindow(windowScene: windowScene)
-        let rootViewController = MainTabViewController()
-        
-        window.rootViewController = rootViewController
+        let splash = LaunchSplashViewController()
+        let mainTab = MainTabViewController()
+        splash.embedMainViewController(mainTab)
+        splash.onAnimationComplete = { [weak self] in
+            self?.isSplashAnimationComplete = true
+            self?.attemptRootSwap(force: false)
+        }
+        mainTab.onFirstAppear = { [weak self] in
+            LaunchDiagnostics.log("MainTab ready signal received")
+            self?.isMainTabReady = true
+            self?.attemptRootSwap(force: false)
+        }
+
+        splashViewController = splash
+        mainTabViewController = mainTab
+        window.rootViewController = splash
         
         self.window = window
         
         window.makeKeyAndVisible()
         LaunchDiagnostics.log("window.makeKeyAndVisible() finished")
 
+        let minimumDurationWorkItem = DispatchWorkItem { [weak self] in
+            self?.isMinimumDurationElapsed = true
+            self?.attemptRootSwap(force: false)
+        }
+        self.minimumDurationWorkItem = minimumDurationWorkItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: minimumDurationWorkItem)
+
+        let hardCapWorkItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            if !isMainTabReady {
+                LaunchDiagnostics.log("Launch splash hard cap fired before MainTab ready signal")
+            }
+            self.attemptRootSwap(force: true)
+        }
+        self.hardCapWorkItem = hardCapWorkItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: hardCapWorkItem)
+
         DispatchQueue.main.async {
             LaunchDiagnostics.log("main queue was available after initial window setup")
+        }
+    }
+
+    private func attemptRootSwap(force: Bool) {
+        guard !hasCommittedRootSwap else { return }
+        guard let window, let splashViewController, let mainTabViewController else { return }
+        guard window.rootViewController === splashViewController else { return }
+
+        if !force {
+            guard isMinimumDurationElapsed, isSplashAnimationComplete, isMainTabReady else { return }
+        }
+
+        hasCommittedRootSwap = true
+        minimumDurationWorkItem?.cancel()
+        hardCapWorkItem?.cancel()
+        minimumDurationWorkItem = nil
+        hardCapWorkItem = nil
+        splashViewController.detachEmbeddedMainViewController()
+
+        UIView.transition(with: window, duration: 0.30, options: .transitionCrossDissolve) {
+            window.rootViewController = mainTabViewController
+        } completion: { _ in
+            LaunchDiagnostics.log("Root swap committed")
         }
     }
 
@@ -63,4 +124,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
 }
-
