@@ -7,14 +7,25 @@ final class AnalyticsViewController: UIViewController {
     private let runningDataManager = RunningDataManager()
     private let mileageAggregator = MileageAggregator()
     private let preferredUnitProvider = PreferredUnitProvider()
+    private let calendar = MileageAggregator.isoCalendar
 
     private var activities: [MileageActivity] = []
     private var yearRange: ClosedRange<Int>
     private var selectedYear: Int
     private var preferredUnit: DistanceDisplayUnit = .kilometers
+    private var loadedYearData = Set<Int>()
+    private var hasLoadedPreferredUnit = false
+    private var hasLoadedActivities = false
+    private var didRenderInitialContent = false
 
-    private let segmentedControl = UISegmentedControl(items: ["Week", "Month", "Half Year", "Year"])
+    private let segmentedControl = UISegmentedControl(items: [
+        NSLocalizedString("ANALYTICS_SEGMENT_WEEK", value: "Week", comment: "Analytics segment title"),
+        NSLocalizedString("ANALYTICS_SEGMENT_MONTH", value: "Month", comment: "Analytics segment title"),
+        NSLocalizedString("ANALYTICS_SEGMENT_HALF_YEAR", value: "Half Year", comment: "Analytics segment title"),
+        NSLocalizedString("ANALYTICS_SEGMENT_YEAR", value: "Year", comment: "Analytics segment title")
+    ])
     private let totalDistanceLabel = UILabel()
+    private let unitStatusLabel = UILabel()
     private let noDataLabel = UILabel()
 
     private let yearSelector = UIStackView()
@@ -45,13 +56,18 @@ final class AnalyticsViewController: UIViewController {
         setupViews()
         loadPreferredDistanceUnit()
         requestAuthorizationAndLoadActivities()
-        refreshContent()
     }
 
     private func setupViews() {
         totalDistanceLabel.translatesAutoresizingMaskIntoConstraints = false
         totalDistanceLabel.font = .preferredFont(forTextStyle: .title3)
         totalDistanceLabel.textAlignment = .center
+
+        unitStatusLabel.translatesAutoresizingMaskIntoConstraints = false
+        unitStatusLabel.font = .preferredFont(forTextStyle: .footnote)
+        unitStatusLabel.textColor = .secondaryLabel
+        unitStatusLabel.textAlignment = .center
+        unitStatusLabel.numberOfLines = 0
 
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
         segmentedControl.selectedSegmentIndex = 0
@@ -78,16 +94,17 @@ final class AnalyticsViewController: UIViewController {
         yearSelector.addArrangedSubview(nextYearButton)
 
         noDataLabel.translatesAutoresizingMaskIntoConstraints = false
-        noDataLabel.text = "暂无里程数据"
+        noDataLabel.text = NSLocalizedString("ANALYTICS_NO_MILEAGE_DATA", value: "No mileage data yet", comment: "Analytics empty state message")
         noDataLabel.textColor = .secondaryLabel
         noDataLabel.textAlignment = .center
-        noDataLabel.isHidden = true
+        noDataLabel.isUserInteractionEnabled = false
 
         chartHostingController.view.translatesAutoresizingMaskIntoConstraints = false
         addChild(chartHostingController)
         chartHostingController.didMove(toParent: self)
 
         view.addSubview(totalDistanceLabel)
+        view.addSubview(unitStatusLabel)
         view.addSubview(segmentedControl)
         view.addSubview(yearSelector)
         view.addSubview(chartHostingController.view)
@@ -98,7 +115,11 @@ final class AnalyticsViewController: UIViewController {
             totalDistanceLabel.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             totalDistanceLabel.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
 
-            segmentedControl.topAnchor.constraint(equalTo: totalDistanceLabel.bottomAnchor, constant: 16),
+            unitStatusLabel.topAnchor.constraint(equalTo: totalDistanceLabel.bottomAnchor, constant: 4),
+            unitStatusLabel.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            unitStatusLabel.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+
+            segmentedControl.topAnchor.constraint(equalTo: unitStatusLabel.bottomAnchor, constant: 12),
             segmentedControl.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             segmentedControl.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
 
@@ -116,46 +137,50 @@ final class AnalyticsViewController: UIViewController {
     }
 
     private func loadPreferredDistanceUnit() {
-        preferredUnitProvider.fetchPreferredDistanceUnit { [weak self] unit in
+        preferredUnitProvider.fetchPreferredDistanceUnit { [weak self] selection in
             DispatchQueue.main.async {
-                self?.preferredUnit = unit
-                self?.refreshContent()
+                self?.preferredUnit = selection.unit
+                self?.unitStatusLabel.text = self?.statusText(for: selection.source)
+                self?.hasLoadedPreferredUnit = true
+                self?.refreshInitialContentIfReady()
             }
         }
     }
 
     private func requestAuthorizationAndLoadActivities() {
         HealthData.requestRunningDataAccess { [weak self] success in
-            guard let self, success else { return }
+            guard let self else { return }
 
-            self.runningDataManager.fetchRunningActivities(from: .distantPast, to: Date()) { activities in
+            guard success else {
                 DispatchQueue.main.async {
-                    self.activities = activities.compactMap { activity in
-                        guard let distance = activity.distance else { return nil }
-                        return MileageActivity(startDate: activity.startDate, distanceMeters: distance)
-                    }
-
-                    let range = self.mileageAggregator.selectableYearRange(in: self.activities)
-                    self.yearRange = range
-                    self.selectedYear = min(max(self.selectedYear, range.lowerBound), range.upperBound)
-                    self.refreshContent()
+                    self.hasLoadedActivities = true
+                    self.refreshInitialContentIfReady()
                 }
+                return
             }
+
+            self.loadActivityBoundariesAndRecentWindow()
         }
     }
 
     @objc private func granularityChanged() {
-        refreshContent()
+        loadMissingDataIfNeeded(for: currentGranularity()) { [weak self] in
+            self?.refreshContent()
+        }
     }
 
     @objc private func previousYearTapped() {
         selectedYear = max(yearRange.lowerBound, selectedYear - 1)
-        refreshContent()
+        loadMissingDataIfNeeded(for: .year(selectedYear)) { [weak self] in
+            self?.refreshContent()
+        }
     }
 
     @objc private func nextYearTapped() {
         selectedYear = min(yearRange.upperBound, selectedYear + 1)
-        refreshContent()
+        loadMissingDataIfNeeded(for: .year(selectedYear)) { [weak self] in
+            self?.refreshContent()
+        }
     }
 
     private func refreshContent() {
@@ -166,12 +191,109 @@ final class AnalyticsViewController: UIViewController {
         chartHostingController.rootView = MileageChart(bucket: bucket, unit: preferredUnit)
 
         noDataLabel.isHidden = bucket.hasData
-        chartHostingController.view.isHidden = !bucket.hasData
 
         yearSelector.isHidden = segmentedControl.selectedSegmentIndex != 3
         yearLabel.text = String(selectedYear)
         previousYearButton.isEnabled = selectedYear > yearRange.lowerBound
         nextYearButton.isEnabled = selectedYear < yearRange.upperBound
+    }
+
+    private func loadActivityBoundariesAndRecentWindow() {
+        runningDataManager.fetchEarliestRunningWorkoutDate { [weak self] earliestDate in
+            guard let self else { return }
+
+            let currentYear = self.calendar.component(.year, from: Date())
+            let earliestYear = earliestDate.map { self.calendar.component(.year, from: $0) } ?? currentYear
+
+            DispatchQueue.main.async {
+                self.yearRange = earliestYear...currentYear
+                self.selectedYear = min(max(self.selectedYear, self.yearRange.lowerBound), self.yearRange.upperBound)
+            }
+
+            let twoYearsAgo = self.calendar.date(byAdding: .year, value: -2, to: Date()) ?? Date()
+            let startDate = earliestDate.map { max($0, twoYearsAgo) } ?? twoYearsAgo
+
+            self.runningDataManager.fetchRunningActivities(from: startDate, to: Date()) { [weak self] recentActivities in
+                guard let self else { return }
+
+                DispatchQueue.main.async {
+                    self.mergeActivities(recentActivities)
+                    self.hasLoadedActivities = true
+                    self.refreshInitialContentIfReady()
+                }
+            }
+        }
+    }
+
+    private func loadMissingDataIfNeeded(for granularity: MileageGranularity, completion: @escaping () -> Void) {
+        guard case .year(let year) = granularity else {
+            completion()
+            return
+        }
+
+        guard !loadedYearData.contains(year) else {
+            completion()
+            return
+        }
+
+        var components = DateComponents()
+        components.year = year
+        components.month = 1
+        components.day = 1
+
+        guard let startDate = calendar.date(from: components),
+              let endDate = calendar.date(byAdding: .year, value: 1, to: startDate) else {
+            completion()
+            return
+        }
+
+        runningDataManager.fetchRunningActivities(from: startDate, to: endDate) { [weak self] activities in
+            DispatchQueue.main.async {
+                self?.mergeActivities(activities)
+                self?.loadedYearData.insert(year)
+                completion()
+            }
+        }
+    }
+
+    private func mergeActivities(_ fetchedActivities: [RunningActivity]) {
+        guard !fetchedActivities.isEmpty else { return }
+
+        var merged = Dictionary(uniqueKeysWithValues: activities.map { ($0.startDate.timeIntervalSince1970, $0) })
+        for activity in fetchedActivities {
+            guard let distance = activity.distance else { continue }
+            let mileageActivity = MileageActivity(startDate: activity.startDate, distanceMeters: distance)
+            merged[mileageActivity.startDate.timeIntervalSince1970] = mileageActivity
+        }
+
+        activities = merged.values.sorted { $0.startDate > $1.startDate }
+    }
+
+    private func refreshInitialContentIfReady() {
+        guard hasLoadedPreferredUnit, hasLoadedActivities else { return }
+        guard !didRenderInitialContent else { return }
+
+        didRenderInitialContent = true
+        refreshContent()
+    }
+
+    private func statusText(for source: PreferredUnitSource) -> String? {
+        switch source {
+        case .preferred:
+            return nil
+        case .fallbackAuthorizationDenied:
+            return NSLocalizedString(
+                "ANALYTICS_UNIT_STATUS_AUTH_DENIED",
+                value: "Using kilometers. Enable Health access to use your preferred distance unit.",
+                comment: "Message shown when Health permission is denied for preferred units"
+            )
+        case .fallbackNoHealthData, .fallbackUnavailable, .fallbackError:
+            return NSLocalizedString(
+                "ANALYTICS_UNIT_STATUS_FALLBACK",
+                value: "Using kilometers because preferred distance unit is unavailable.",
+                comment: "Message shown when preferred units cannot be loaded"
+            )
+        }
     }
 
     private func currentGranularity() -> MileageGranularity {

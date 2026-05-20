@@ -1,6 +1,19 @@
 import Foundation
 import HealthKit
 
+enum PreferredUnitSource {
+    case preferred
+    case fallbackNoHealthData
+    case fallbackAuthorizationDenied
+    case fallbackUnavailable
+    case fallbackError
+}
+
+struct PreferredDistanceUnitSelection {
+    let unit: DistanceDisplayUnit
+    let source: PreferredUnitSource
+}
+
 enum DistanceDisplayUnit {
     case kilometers
     case miles
@@ -38,24 +51,34 @@ final class PreferredUnitProvider {
         self.healthStore = healthStore
     }
 
-    func fetchPreferredDistanceUnit(completion: @escaping (DistanceDisplayUnit) -> Void) {
+    func fetchPreferredDistanceUnit(completion: @escaping (PreferredDistanceUnitSelection) -> Void) {
         guard HKHealthStore.isHealthDataAvailable(),
               let distanceType = HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)
         else {
-            completion(.kilometers)
+            completion(PreferredDistanceUnitSelection(unit: .kilometers, source: .fallbackNoHealthData))
             return
         }
 
-        healthStore.preferredUnits(for: [distanceType]) { units, _ in
+        if healthStore.authorizationStatus(for: distanceType) == .sharingDenied {
+            completion(PreferredDistanceUnitSelection(unit: .kilometers, source: .fallbackAuthorizationDenied))
+            return
+        }
+
+        healthStore.preferredUnits(for: [distanceType]) { units, error in
+            if error != nil {
+                completion(PreferredDistanceUnitSelection(unit: .kilometers, source: .fallbackError))
+                return
+            }
+
             guard let unit = units[distanceType] else {
-                completion(.kilometers)
+                completion(PreferredDistanceUnitSelection(unit: .kilometers, source: .fallbackUnavailable))
                 return
             }
 
             if unit == .mile() {
-                completion(.miles)
+                completion(PreferredDistanceUnitSelection(unit: .miles, source: .preferred))
             } else {
-                completion(.kilometers)
+                completion(PreferredDistanceUnitSelection(unit: .kilometers, source: .preferred))
             }
         }
     }
